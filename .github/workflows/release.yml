@@ -409,7 +409,8 @@ jobs:
           BUILD: ${{ steps.artifacts.outputs.build }}
           NOTES_PATH: ${{ runner.temp }}/release-notes.md
         run: |
-          DOWNLOAD_BASE="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG"
+          # generate-appcast.sh appends /v<version>/<zip>, so no tag here.
+          DOWNLOAD_BASE="https://github.com/$GITHUB_REPOSITORY/releases/download"
 
           # site/ is what Cloudflare serves at streamif.com, and SUFeedURL
           # points at streamif.com/appcast.xml, so the feed has to live there.
@@ -436,12 +437,13 @@ jobs:
           fi
           python3 -c "import sys, xml.dom.minidom as m; m.parse(sys.argv[1])" site/appcast.xml
 
-          if git diff --quiet -- site/appcast.xml; then
+          # Stage first: on the very first release the file is untracked, and
+          # git diff reports no change for untracked files.
+          git add site/appcast.xml
+          if git diff --cached --quiet -- site/appcast.xml; then
             echo "::notice::The appcast already lists $TAG."
             exit 0
           fi
-
-          git add site/appcast.xml
           git -c user.name='github-actions[bot]' \
               -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
               commit --quiet -m "Add $TAG to the appcast [skip ci]"
