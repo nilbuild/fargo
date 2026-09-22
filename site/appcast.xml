@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+  <channel>
+    <title>Streamif</title>
+    <link>https://github.com/nilbuild/streamif</link>
+    <description>Most recent Streamif updates.</description>
+    <language>en</language>
+    <item>
+      <title>Version 0.1.0</title>
+      <pubDate>Tue, 22 Sep 2026 16:38:24 +0000</pubDate>
+      <sparkle:version>3</sparkle:version>
+      <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h3>What&#x27;s changed</h3>
+<ul>
+<li>Fix the appcast publish step (3454b66)</li>
+<li>Prepare the first Streamif release (09c445d)</li>
+<li>Serve the appcast from the site instead of gh-pages (ae17723)</li>
+<li>Serve the site from Cloudflare Workers (b7978e6)</li>
+<li>Rework the landing page (866a83a)</li>
+<li>Rename Fargo to Streamif (652548e)</li>
+<li>Fargo: native macOS streaming studio (fcc8bea)</li>
+</ul>
+<h3>Install</h3>
+<p>Download <code>Streamif-0.1.0-universal.dmg</code>, drag Streamif to Applications, and launch it.</p>
+<p>The build is a universal binary, signed with a Developer ID certificate and notarized by Apple.</p>
+<p>Requires macOS 14.0 or later. Existing installs update themselves through Sparkle.</p>]]></description>
+      <enclosure url="https://github.com/nilbuild/streamif/releases/download/v0.1.0/Streamif-0.1.0-universal.zip" length="20221744" type="application/octet-stream" sparkle:edSignature="D4M6dRskvVSFFr+OrFB4T0/f21rj46a6p6tczMdQFM/8TGXk1oEDOtX770R1nC3C4YQeJVuhz5fGWqmHpw9jAQ=="/>
+    </item>
+  </channel>
+</rss>
