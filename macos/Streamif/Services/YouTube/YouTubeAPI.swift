@@ -14,9 +14,11 @@ final class YouTubeAPI {
         let token = try await requireToken()
 
         var components = URLComponents(string: "\(baseUrl)/liveBroadcasts")!
+        // liveBroadcasts.list takes exactly one filter. Sending mine alongside
+        // broadcastStatus is rejected, and broadcastStatus already scopes the
+        // results to the signed-in channel.
         components.queryItems = [
             URLQueryItem(name: "part", value: "snippet,status,contentDetails"),
-            URLQueryItem(name: "mine", value: "true"),
             URLQueryItem(name: "broadcastStatus", value: status),
             URLQueryItem(name: "maxResults", value: "10"),
         ]
@@ -24,7 +26,8 @@ final class YouTubeAPI {
         var request = URLRequest(url: components.url!)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, httpResponse) = try await URLSession.shared.data(for: request)
+        try Self.throwIfError(data: data, response: httpResponse)
         let response = try JSONDecoder().decode(YouTubeListResponse<YouTubeBroadcastItem>.self, from: data)
 
         return response.items?.map { item in
@@ -321,5 +324,21 @@ enum YouTubeAPIError: LocalizedError {
         case .invalidResponse: return "Invalid response from YouTube API"
         case .apiError(let msg): return msg
         }
+    }
+}
+
+extension YouTubeAPI {
+    /// Turns a non-2xx response into the message YouTube put in the body,
+    /// instead of letting it decode into an empty result set.
+    static func throwIfError(data: Data, response: URLResponse) throws {
+        guard let http = response as? HTTPURLResponse else { return }
+        guard !(200...299).contains(http.statusCode) else { return }
+
+        if let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let error = object["error"] as? [String: Any],
+           let message = error["message"] as? String {
+            throw YouTubeAPIError.apiError("YouTube API \(http.statusCode): \(message)")
+        }
+        throw YouTubeAPIError.apiError("YouTube API returned \(http.statusCode)")
     }
 }
