@@ -76,6 +76,8 @@ final class RTMPClient: @unchecked Sendable {
 
     private var reconnectAttempt: Int = 0
     private let maxReconnectAttempts = 10
+    private var hasEverPublished = false
+    private let publishFailuresBeforeGivingUp = 2
     private var reconnectTimer: DispatchSourceTimer?
     private var intentionalDisconnect = false
 
@@ -113,6 +115,7 @@ final class RTMPClient: @unchecked Sendable {
                 self.state = .connecting
             case .publishing:
                 print("[RTMPClient] Publishing accepted, sending metadata")
+                self.hasEverPublished = true
                 self.reconnectAttempt = 0
                 self.liveStartTime = Date()
                 self.sendMetadataOnly()
@@ -334,6 +337,15 @@ final class RTMPClient: @unchecked Sendable {
     // MARK: - Reconnection
 
     private func scheduleReconnect() {
+        // A server that accepts connect and then hangs up before publishing has
+        // almost always rejected the stream key. Retrying that forever only ever
+        // shows "connecting" and never says why.
+        if !hasEverPublished && reconnectAttempt >= publishFailuresBeforeGivingUp {
+            print("[RTMPClient] Never reached publish after \(reconnectAttempt) attempts, treating the stream key as rejected")
+            state = .error("Stream key rejected. Check the key for this destination.")
+            return
+        }
+
         guard reconnectAttempt < maxReconnectAttempts else {
             print("[RTMPClient] Max reconnect attempts reached (\(maxReconnectAttempts))")
             state = .error("Connection lost after \(maxReconnectAttempts) retries")

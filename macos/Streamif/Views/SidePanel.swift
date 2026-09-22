@@ -2325,13 +2325,18 @@ struct DestinationCard: View {
                     HStack(spacing: 5) {
                         Text(destination.name)
                             .font(.system(size: 12, weight: .medium)).foregroundStyle(.white.opacity(0.9))
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                            .layoutPriority(1)
 
                         if let state = destinationState {
                             DestinationStateBadge(state: state)
                         }
                     }
-                    Text("\(destination.videoWidth)x\(destination.videoHeight) @ \(destination.videoBitrate / 1000)kbps")
+                    Text(verbatim: "\(destination.videoWidth)x\(destination.videoHeight) @ \(destination.videoBitrate / 1000)kbps")
                         .font(.system(size: 9, design: .monospaced)).foregroundStyle(.white.opacity(0.25))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                 }
 
                 Spacer()
@@ -2414,10 +2419,13 @@ struct DestinationStateBadge: View {
             Text(stateLabel)
                 .font(.system(size: 8, weight: .medium))
                 .foregroundStyle(stateColor)
+                .lineLimit(1)
+                .fixedSize()
         }
         .padding(.horizontal, 5).padding(.vertical, 2)
         .background(stateColor.opacity(0.1))
         .clipShape(Capsule())
+        .fixedSize()
     }
 
     private var stateColor: Color {
@@ -2517,6 +2525,11 @@ struct AddDestinationForm: View {
     @State private var customUrl = ""
     @State private var streamKey = ""
     @State private var streamKeyFocusToken = 0
+
+    private var trimmedKey: String {
+        streamKey.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     @FocusState private var streamKeyFocused: Bool
 
     private var selectedPreset: PlatformPreset? {
@@ -2708,12 +2721,26 @@ struct AddDestinationForm: View {
                             .contentShape(Rectangle())
                     }.buttonStyle(.plain)
 
-                    let canAdd = !streamKey.isEmpty && !customUrl.isEmpty
+                    // Studio shows the ingest URL and the key side by side, and
+                    // pasting the URL here fails much later as a dropped RTMP
+                    // connection with no explanation.
+                    let keyLooksLikeURL = trimmedKey.lowercased().hasPrefix("rtmp://")
+                        || trimmedKey.lowercased().hasPrefix("rtmps://")
+                        || trimmedKey.lowercased().hasPrefix("http")
+                    let canAdd = !trimmedKey.isEmpty && !customUrl.isEmpty && !keyLooksLikeURL
+
+                    if keyLooksLikeURL {
+                        Text("That looks like the ingest URL. Paste the stream key instead.")
+                            .font(.system(size: 9))
+                            .foregroundStyle(.orange)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
                     Button {
                         guard canAdd else {
                             return
                         }
-                        onAdd(preset, customUrl != preset.rtmpUrl ? customUrl : nil, streamKey)
+                        onAdd(preset, customUrl != preset.rtmpUrl ? customUrl : nil, trimmedKey)
                     } label: {
                         Text("Add Destination")
                             .font(.system(size: 11, weight: .semibold))
