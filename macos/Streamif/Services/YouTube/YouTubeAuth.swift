@@ -27,6 +27,7 @@ final class YouTubeAuth {
 
     private(set) var isSignedIn = false
     private(set) var channelInfo: YouTubeChannelInfo?
+    private(set) var channelError: String?
     private(set) var isAuthenticating = false
     private(set) var authError: String?
 
@@ -116,6 +117,7 @@ final class YouTubeAuth {
 
         tokens = nil
         isSignedIn = false
+        channelError = nil
         channelInfo = nil
         authError = nil
         deleteTokensFromKeychain()
@@ -241,17 +243,38 @@ final class YouTubeAuth {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
         do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            let response = try JSONDecoder().decode(YouTubeListResponse<YouTubeChannelItem>.self, from: data)
+            let (data, response) = try await URLSession.shared.data(for: request)
 
-            if let item = response.items?.first {
-                channelInfo = YouTubeChannelInfo(
-                    channelId: item.id,
-                    channelTitle: item.snippet?.title ?? "",
-                    thumbnailUrl: item.snippet?.thumbnails?.default?.url
-                )
+            if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+                var detail = "HTTP \(http.statusCode)"
+                if let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let error = object["error"] as? [String: Any],
+                   let message = error["message"] as? String {
+                    detail = message
+                }
+                channelError = "Could not read your channel: \(detail)"
+                print("[YouTubeAuth] Channel lookup failed: \(detail)")
+                return
             }
+
+            let decoded = try JSONDecoder().decode(YouTubeListResponse<YouTubeChannelItem>.self, from: data)
+
+            guard let item = decoded.items?.first else {
+                // A Google account with no channel authenticates fine and then
+                // fails every YouTube call, which is easy to mistake for a bug.
+                channelError = "This Google account has no YouTube channel. Sign out and pick the channel you stream from."
+                print("[YouTubeAuth] Signed-in account has no YouTube channel")
+                return
+            }
+
+            channelError = nil
+            channelInfo = YouTubeChannelInfo(
+                channelId: item.id,
+                channelTitle: item.snippet?.title ?? "",
+                thumbnailUrl: item.snippet?.thumbnails?.default?.url
+            )
         } catch {
+            channelError = "Could not read your channel: \(error.localizedDescription)"
             print("[YouTubeAuth] Failed to fetch channel info: \(error)")
         }
     }

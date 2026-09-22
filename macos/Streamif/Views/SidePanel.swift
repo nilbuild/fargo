@@ -1145,6 +1145,7 @@ struct ChatTab: View {
                         isActive: pipeline.youtubeChatService.isPolling,
                         signedInLabel: pipeline.youtubeAuth.channelInfo?.channelTitle,
                         isAuthenticating: pipeline.youtubeAuth.isAuthenticating,
+                        accountWarning: pipeline.youtubeAuth.channelError,
                         onSignIn: { pipeline.youtubeAuth.signIn() },
                         onCancelSignIn: { pipeline.youtubeAuth.cancelSignIn() },
                         onSignOut: {
@@ -1223,6 +1224,7 @@ struct ChatSourceCard: View {
     let isActive: Bool
     let signedInLabel: String?
     let isAuthenticating: Bool
+    var accountWarning: String?
     let onSignIn: () -> Void
     let onCancelSignIn: () -> Void
     let onSignOut: () -> Void
@@ -1246,6 +1248,7 @@ struct ChatSourceCard: View {
                             .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(.white.opacity(0.7))
                             .lineLimit(1)
+                            .truncationMode(.tail)
 
                         if isActive {
                             Circle().fill(.green).frame(width: 5, height: 5)
@@ -1278,6 +1281,14 @@ struct ChatSourceCard: View {
                             .foregroundStyle(.white.opacity(0.5))
                         Spacer()
                     }
+                }
+
+                if let accountWarning, isSignedIn {
+                    Text(accountWarning)
+                        .font(.system(size: 9))
+                        .foregroundStyle(.orange)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
 
                 if !isSignedIn {
