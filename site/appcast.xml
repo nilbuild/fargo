@@ -6,6 +6,31 @@
     <description>Most recent Streamif updates.</description>
     <language>en</language>
     <item>
+      <title>Version 0.1.1</title>
+      <pubDate>Tue, 22 Sep 2026 19:03:36 +0000</pubDate>
+      <sparkle:version>4</sparkle:version>
+      <sparkle:shortVersionString>0.1.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h3>What&#x27;s changed</h3>
+<ul>
+<li>Bump to 0.1.1 (build 4) (ca4707b)</li>
+<li>Let a destination pick its quality (8b9f28c)</li>
+<li>Find the live broadcast, and report API errors (228eada)</li>
+<li>Explain a rejected stream key, and stop the card squashing (ac4f1b3)</li>
+<li>Let YouTube sign-in be cancelled (835e98d)</li>
+<li>Point Twitch at a public client (eb0610f)</li>
+<li>Redeploy the site (6629097)</li>
+<li>Let Cloudflare deploy the appcast commit (35ccb97)</li>
+<li>Add v0.1.0 to the appcast [skip ci] (6fe1380)</li>
+</ul>
+<h3>Install</h3>
+<p>Download <code>Streamif-0.1.1-universal.dmg</code>, drag Streamif to Applications, and launch it.</p>
+<p>The build is a universal binary, signed with a Developer ID certificate and notarized by Apple.</p>
+<p>Requires macOS 14.0 or later. Existing installs update themselves through Sparkle.</p>
+<p><strong>Full changelog</strong>: https://github.com/nilbuild/streamif/compare/v0.1.0...v0.1.1</p>]]></description>
+      <enclosure url="https://github.com/nilbuild/streamif/releases/download/v0.1.1/Streamif-0.1.1-universal.zip" length="20240649" type="application/octet-stream" sparkle:edSignature="lL5M+Dg3KTBf5eWZxZ9sBYUSaT/2PZmg+ymLqU7ROMyS16Pl+KnlGo1Fp9+B9ySoABlxv0xEsm0d1c8UYyjACw=="/>
+    </item>
+    <item>
       <title>Version 0.1.0</title>
       <pubDate>Tue, 22 Sep 2026 16:38:24 +0000</pubDate>
       <sparkle:version>3</sparkle:version>
