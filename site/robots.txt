@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://streamif.com/sitemap.xml
