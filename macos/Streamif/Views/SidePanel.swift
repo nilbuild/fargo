@@ -1146,6 +1146,7 @@ struct ChatTab: View {
                         signedInLabel: pipeline.youtubeAuth.channelInfo?.channelTitle,
                         isAuthenticating: pipeline.youtubeAuth.isAuthenticating,
                         onSignIn: { pipeline.youtubeAuth.signIn() },
+                        onCancelSignIn: { pipeline.youtubeAuth.cancelSignIn() },
                         onSignOut: {
                             pipeline.youtubeAuth.signOut()
                             pipeline.stopYouTubeChat()
@@ -1223,6 +1224,7 @@ struct ChatSourceCard: View {
     let signedInLabel: String?
     let isAuthenticating: Bool
     let onSignIn: () -> Void
+    let onCancelSignIn: () -> Void
     let onSignOut: () -> Void
     let onConnect: () async -> String?
     let onDisconnect: () -> Void
@@ -1279,23 +1281,44 @@ struct ChatSourceCard: View {
                 }
 
                 if !isSignedIn {
-                    Button(action: onSignIn) {
-                        HStack(spacing: 4) {
-                            if isAuthenticating {
+                    // The browser can close without ever calling back, which would
+                    // otherwise leave this stuck on "Signing in..." until a restart.
+                    if isAuthenticating {
+                        VStack(spacing: 4) {
+                            HStack(spacing: 4) {
                                 ProgressView().controlSize(.mini)
+                                Text("Signing in...")
+                                    .font(.system(size: 10, weight: .medium))
                             }
-                            Text(isAuthenticating ? "Signing in..." : "Sign In")
-                                .font(.system(size: 10, weight: .medium))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 5)
+                            .background(.blue.opacity(0.15))
+                            .foregroundStyle(.blue)
+                            .clipShape(RoundedRectangle(cornerRadius: 5))
+
+                            Button(action: onCancelSignIn) {
+                                Text("Cancel")
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(.white.opacity(0.35))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 3)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 5)
-                        .background(.blue.opacity(0.15))
-                        .foregroundStyle(.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 5))
-                        .contentShape(Rectangle())
+                    } else {
+                        Button(action: onSignIn) {
+                            Text("Sign In")
+                                .font(.system(size: 10, weight: .medium))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 5)
+                                .background(.blue.opacity(0.15))
+                                .foregroundStyle(.blue)
+                                .clipShape(RoundedRectangle(cornerRadius: 5))
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
-                    .disabled(isAuthenticating)
                 } else if !isActive {
                     Button {
                         isConnecting = true
