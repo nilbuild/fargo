@@ -11,7 +11,7 @@ Please **do not** open a public issue for a security problem.
 
 Report it privately with [GitHub Security Advisories](https://github.com/nilbuild/streamif/security/advisories/new)
 for this repository. If you cannot use that, send an email to
-kamran@insightmediagroup.io.
+kamranahmed.se@gmail.com.
 
 Include:
 - What the vulnerability is and what it affects
