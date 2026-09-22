@@ -2312,6 +2312,18 @@ struct DestinationCard: View {
     @State private var health: RTMPClient.StreamHealth?
     @State private var healthTimer: Timer?
 
+    /// Warns once the measured rate sits well under target for long enough that
+    /// it is not just the encoder ramping up.
+    private func bitrateShortfall(_ health: RTMPClient.StreamHealth) -> String? {
+        guard health.uptimeSeconds > 20, health.currentBitrate > 0 else { return nil }
+        let target = destination.videoBitrate
+        guard target > 0, Double(health.currentBitrate) < Double(target) * 0.6 else { return nil }
+
+        let actual = health.currentBitrate / 1_000_000
+        let wanted = target / 1_000_000
+        return "Sending about \(actual) Mbps of the \(wanted) Mbps this destination asks for. Motion will smear. Try a lower quality."
+    }
+
     private var destinationState: RTMPClient.ClientState? {
         let outputs = pipeline.streamManager.destinations
         let output = outputs.first { $0.id == destination.id }
@@ -2391,6 +2403,17 @@ struct DestinationCard: View {
             if pipeline.streamStatus.isLive, let health = health {
                 DestinationHealthBar(health: health)
                     .padding(.horizontal, 10).padding(.bottom, 8)
+
+                // Sending far less than the destination asks for is what makes
+                // motion smear, and nothing else in the UI says so.
+                if let shortfall = bitrateShortfall(health) {
+                    Text(shortfall)
+                        .font(.system(size: 9))
+                        .foregroundStyle(.orange)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 10).padding(.bottom, 8)
+                }
             }
         }
         .background(.white.opacity(0.03))

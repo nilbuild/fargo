@@ -547,6 +547,7 @@ final class MediaPipeline {
                 if let newInput = try? AVCaptureDeviceInput(device: device),
                    session.canAddInput(newInput) {
                     session.addInput(newInput)
+                    self.pinFrameRate(device, to: 60)
                 }
                 session.commitConfiguration()
             }
@@ -564,12 +565,37 @@ final class MediaPipeline {
                 captureSession.addInput(input)
                 cameraInput = input
                 cameraError = nil
-
+                pinFrameRate(dev, to: 60)
             } else {
                 cameraError = "Cannot add camera"
             }
         } catch { cameraError = error.localizedDescription }
     }
+
+    /// Asks the camera for a fixed frame rate. Left alone, a device runs at
+    /// whatever it defaults to and auto-exposure is free to halve that in poor
+    /// light, while the compositor and encoder keep assuming 60.
+    private func pinFrameRate(_ device: AVCaptureDevice, to target: Int32) {
+        let supported = device.activeFormat.videoSupportedFrameRateRanges
+        guard let range = supported.first else { return }
+
+        let maxRate = Int32(range.maxFrameRate.rounded(.down))
+        let minRate = Int32(range.minFrameRate.rounded(.up))
+        let rate = max(minRate, min(target, maxRate))
+        guard rate > 0 else { return }
+
+        do {
+            try device.lockForConfiguration()
+            defer { device.unlockForConfiguration() }
+            let duration = CMTimeMake(value: 1, timescale: rate)
+            device.activeVideoMinFrameDuration = duration
+            device.activeVideoMaxFrameDuration = duration
+            print("[MediaPipeline] Camera pinned to \(rate) fps (device supports \(minRate)-\(maxRate))")
+        } catch {
+            print("[MediaPipeline] Could not pin camera frame rate: \(error)")
+        }
+    }
+
 
     private func addMicInput() {
         if let c = micInput { captureSession.removeInput(c); micInput = nil }
