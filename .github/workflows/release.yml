@@ -439,6 +439,8 @@ jobs:
 
           # Stage first: on the very first release the file is untracked, and
           # git diff reports no change for untracked files.
+          # [skip actions] is understood by GitHub but not by Cloudflare, which
+          # also honours [skip ci] and would skip the deploy this commit needs.
           git add site/appcast.xml
           if git diff --cached --quiet -- site/appcast.xml; then
             echo "::notice::The appcast already lists $TAG."
@@ -446,7 +448,7 @@ jobs:
           fi
           git -c user.name='github-actions[bot]' \
               -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
-              commit --quiet -m "Add $TAG to the appcast [skip ci]"
+              commit --quiet -m "Add $TAG to the appcast [skip actions]"
 
           # A push landing on main between the fetch above and here would make
           # this non-fast-forward, so rebase onto whatever arrived and retry.
