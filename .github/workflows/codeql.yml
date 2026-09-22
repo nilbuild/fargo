@@ -1,0 +1,83 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Off the hour to avoid the rush for macOS runners.
+    - cron: "13 7 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  analyze:
+    name: Analyze Swift
+    # Swift has no "build-mode: none", so CodeQL has to watch a real compile.
+    runs-on: macos-26
+    timeout-minutes: 60
+
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
+    env:
+      XCODE_VERSION: "26.4.1"
+      SPM_CACHE: ${{ github.workspace }}/.spm-cache
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        uses: maxim-lobanov/setup-xcode@v1.7.0
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Cache SwiftPM dependencies
+        uses: actions/cache@v6.1.0
+        with:
+          path: ${{ env.SPM_CACHE }}
+          key: spm-codeql-${{ runner.os }}-${{ runner.arch }}-xc${{ env.XCODE_VERSION }}-${{ hashFiles('macos/Fargo.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved', 'macos/Fargo.xcodeproj/project.pbxproj') }}
+          restore-keys: |
+            spm-codeql-${{ runner.os }}-${{ runner.arch }}-xc${{ env.XCODE_VERSION }}-
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4.38.1
+        with:
+          languages: swift
+          build-mode: manual
+          queries: security-and-quality
+
+      - name: Build for CodeQL
+        run: |
+          xcodebuild clean build \
+            -project macos/Fargo.xcodeproj \
+            -scheme Fargo \
+            -configuration Debug \
+            -destination 'platform=macOS,arch=arm64' \
+            -derivedDataPath "$RUNNER_TEMP/codeql-derived-data" \
+            -clonedSourcePackagesDirPath "$SPM_CACHE" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= \
+            CODE_SIGN_ENTITLEMENTS= \
+            DEVELOPMENT_TEAM=
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4.38.1
+        with:
+          category: /language:swift

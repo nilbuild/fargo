@@ -1,0 +1,78 @@
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  publish:
+    name: Publish site to gh-pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5.0.0
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PAGES_DIR="$RUNNER_TEMP/gh-pages"
+          REMOTE="https://x-access-token:$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git"
+
+          rm -rf "$PAGES_DIR"
+          if git ls-remote --exit-code --heads "$REMOTE" gh-pages > /dev/null 2>&1; then
+            git clone --depth 1 --branch gh-pages --quiet "$REMOTE" "$PAGES_DIR"
+          else
+            echo "::notice::gh-pages does not exist yet, creating it."
+            mkdir -p "$PAGES_DIR"
+            git -C "$PAGES_DIR" init --quiet --initial-branch=gh-pages
+            git -C "$PAGES_DIR" remote add origin "$REMOTE"
+          fi
+
+          # Pages runs Jekyll over branch sources unless told not to.
+          touch "$PAGES_DIR/.nojekyll"
+
+          # Only the site is copied. appcast.xml is written by the release
+          # workflow and must survive a site deploy untouched.
+          cp -R site/. "$PAGES_DIR/"
+
+          git -C "$PAGES_DIR" add -A
+          if git -C "$PAGES_DIR" diff --cached --quiet; then
+            echo "::notice::Site is already up to date."
+            exit 0
+          fi
+
+          git -C "$PAGES_DIR" \
+            -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit --quiet -m "Publish site from ${GITHUB_SHA:0:7}"
+
+          # A release publishing the appcast at the same moment would make this
+          # push non-fast-forward, so rebase onto whatever landed and retry.
+          for attempt in 1 2 3; do
+            if git -C "$PAGES_DIR" push --quiet origin gh-pages; then
+              echo "Published on attempt $attempt."
+              exit 0
+            fi
+            echo "::notice::Push rejected, rebasing and retrying."
+            git -C "$PAGES_DIR" pull --rebase --quiet origin gh-pages || true
+            sleep 5
+          done
+
+          echo "::error::Could not push to gh-pages after 3 attempts."
+          exit 1

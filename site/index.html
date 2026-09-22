@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fargo</title>
+<meta name="description" content="A native macOS streaming studio. Stream to several platforms at once, record locally in 4K, and build your scene on the GPU.">
+<link rel="icon" href="icon.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta property="og:title" content="Fargo">
+<meta property="og:description" content="A native macOS streaming studio. Stream to several platforms at once, record locally in 4K.">
+<meta property="og:image" content="icon.png">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fcfcfd;
+    --fg: #0d0d10;
+    --muted: #6d6d78;
+    --line: rgba(0, 0, 0, 0.09);
+    --accent: #f0402f;
+    --accent-hover: #d83322;
+    --glow: rgba(240, 64, 47, 0.13);
+  }
+
+  @supports (color: color(display-p3 1 1 1)) {
+    :root {
+      --accent: color(display-p3 0.92041 0.28955 0.22668);
+      --accent-hover: color(display-p3 0.82 0.22 0.16);
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #08080a;
+      --fg: #f4f4f6;
+      --muted: #8b8b96;
+      --line: rgba(255, 255, 255, 0.11);
+      --glow: rgba(240, 64, 47, 0.18);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(60rem 40rem at 12% -10%, var(--glow), transparent 70%),
+      radial-gradient(45rem 35rem at 95% 108%, var(--glow), transparent 72%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 78rem;
+    margin: 0 auto;
+    padding-left: clamp(1.25rem, 5vw, 4.5rem);
+    padding-right: clamp(1.25rem, 5vw, 4.5rem);
+  }
+
+  header {
+    padding-top: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  header img {
+    width: clamp(3.25rem, 5.5vw, 4.5rem);
+    height: auto;
+    display: block;
+  }
+
+  main {
+    padding-top: clamp(4rem, 14vh, 11rem);
+    padding-bottom: clamp(5rem, 16vh, 13rem);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(3rem, 10vw, 8.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    font-weight: 600;
+  }
+
+  .sub {
+    margin: clamp(1.5rem, 3.5vw, 2.5rem) 0 0;
+    font-size: clamp(1.125rem, 2.1vw, 1.75rem);
+    line-height: 1.45;
+    letter-spacing: -0.012em;
+    color: var(--muted);
+    max-width: 32ch;
+    font-weight: 400;
+  }
+
+  .actions {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: clamp(1.25rem, 3vw, 2.25rem);
+    row-gap: 1.25rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-size: clamp(1rem, 1.35vw, 1.2rem);
+    font-weight: 550;
+    letter-spacing: -0.01em;
+    padding: clamp(0.9rem, 1.5vw, 1.2rem) clamp(1.65rem, 3.2vw, 2.75rem);
+    border-radius: 999px;
+    transition: background-color 0.18s ease, transform 0.18s ease;
+  }
+
+  .btn:hover { background: var(--accent-hover); }
+  .btn:active { transform: translateY(1px); }
+
+  .btn:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .alt {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 2px;
+    transition: color 0.18s ease, border-color 0.18s ease;
+  }
+
+  .alt:hover {
+    color: var(--fg);
+    border-color: currentColor;
+  }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: clamp(1.5rem, 3vw, 2rem) 0 clamp(2rem, 4vw, 3rem);
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  footer a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+
+  footer a:hover {
+    color: var(--fg);
+    border-color: var(--line);
+  }
+
+  .dot {
+    padding: 0 0.7rem;
+    opacity: 0.45;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="icon.png" alt="Fargo" width="512" height="512">
+    </header>
+
+    <main>
+      <h1>Fargo</h1>
+      <p class="sub">
+        A native macOS streaming studio. Go live on several platforms at once,
+        record in 4K, and build your scene on the GPU.
+      </p>
+
+      <div class="actions">
+        <a class="btn" href="https://github.com/nilbuild/fargo/releases/latest">Download for macOS</a>
+        <a class="alt" href="https://github.com/nilbuild/fargo">View source</a>
+      </div>
+    </main>
+
+    <footer>
+      Free and open source. Requires macOS 14 or later.<span class="dot">&middot;</span><a href="privacy.html">Privacy</a>
+    </footer>
+  </div>
+</body>
+</html>

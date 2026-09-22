@@ -1,0 +1,47 @@
+name: Stale
+
+on:
+  schedule:
+    - cron: "41 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stale:
+    name: Mark stale issues
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/stale@v11.0.0
+        with:
+          days-before-issue-stale: 60
+          days-before-issue-close: 14
+          stale-issue-label: stale
+          stale-issue-message: >
+            This issue has had no activity for 60 days. If it is still relevant,
+            leave a comment and it will stay open - otherwise it will close in
+            14 days. Closed issues can always be reopened.
+          close-issue-message: >
+            Closing this as inactive. Comment here to reopen it if it is still
+            happening.
+          exempt-issue-labels: "pinned,security,roadmap,help wanted,good first issue,confirmed bug"
+
+          # -1 means pull requests are nudged but never auto-closed.
+          days-before-pr-stale: 45
+          days-before-pr-close: -1
+          stale-pr-label: stale
+          stale-pr-message: >
+            This pull request has had no activity for 45 days. It will stay open
+            - this is just a nudge. Push a commit or comment to clear the label.
+          exempt-pr-labels: "pinned,security,work in progress"
+
+          exempt-all-milestones: true
+          operations-per-run: 100
+          ascending: true

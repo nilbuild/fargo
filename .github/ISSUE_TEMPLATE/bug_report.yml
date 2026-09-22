@@ -1,0 +1,76 @@
+name: Bug report
+description: Something is not working right
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you do? What did you expect? What happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Add a destination for...
+        2. Go live...
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: fargo-version
+    attributes:
+      label: Fargo version
+      description: Fargo menu → About Fargo
+      placeholder: 0.1.0
+    validations:
+      required: true
+
+  - type: input
+    id: macos-version
+    attributes:
+      label: macOS version
+      placeholder: macOS 15.1 (Sequoia)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: chip
+    attributes:
+      label: Chip
+      options:
+        - Apple Silicon
+        - Intel
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Destination platform (if the issue is about streaming)
+      options:
+        - Not applicable
+        - YouTube
+        - Twitch
+        - Kick
+        - Facebook
+        - X (Twitter)
+        - Custom RTMP
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / console output
+      description: |
+        Open Console.app, filter it to "Fargo", and copy the lines from the
+        time the problem happened. Remove stream keys and OAuth tokens before
+        you paste them here.
+      render: shell
+    validations:
+      required: false

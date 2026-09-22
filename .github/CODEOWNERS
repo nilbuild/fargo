@@ -1,0 +1,14 @@
+# Every pull request needs a review from the maintainer.
+# The last rule that matches wins, so the security-sensitive paths are at the end.
+
+*                       @nilbuild
+
+# Release tooling. A change here can sign, notarize or publish for the
+# project, so it never merges without a real review.
+/.github/               @nilbuild
+/scripts/               @nilbuild
+/Makefile               @nilbuild
+
+# Code signing, entitlements, update feed and OAuth redirect handling.
+/macos/Fargo/Fargo.entitlements   @nilbuild
+/macos/Fargo/Info.plist           @nilbuild

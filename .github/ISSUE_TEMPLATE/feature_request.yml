@@ -1,0 +1,43 @@
+name: Feature request
+description: Suggest something Fargo should do
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve
+      description: What do you want to do that Fargo cannot do today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you want instead
+      description: How should it work?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Streaming (RTMP, destinations, bitrate)
+        - Recording
+        - Scene/canvas/sources
+        - Overlays
+        - Audio (mixing, soundboard)
+        - Captions
+        - Chat (YouTube/Twitch)
+        - Other
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Other things you tried
+      description: Other apps or workarounds you have tried
+    validations:
+      required: false
