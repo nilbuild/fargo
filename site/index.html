@@ -19,7 +19,8 @@
     --muted: #6d6d78;
     --faint: #94949e;
     --line: rgba(0, 0, 0, 0.1);
-    --chip: rgba(0, 0, 0, 0.03);
+    --chip: rgba(0, 0, 0, 0.045);
+    --chip-hover: rgba(0, 0, 0, 0.09);
     --accent: #f0402f;
     --accent-hover: #d83322;
     --glow: rgba(240, 64, 47, 0.12);
@@ -39,7 +40,8 @@
       --muted: #8b8b96;
       --faint: #6a6a75;
       --line: rgba(255, 255, 255, 0.12);
-      --chip: rgba(255, 255, 255, 0.05);
+      --chip: rgba(255, 255, 255, 0.06);
+      --chip-hover: rgba(255, 255, 255, 0.13);
       --glow: rgba(240, 64, 47, 0.16);
     }
   }
@@ -142,16 +144,15 @@
     justify-content: center;
     width: 3.1rem;
     height: 3.1rem;
-    border: 1px solid var(--line);
     border-radius: 999px;
     background: var(--chip);
     color: var(--fg);
-    transition: border-color 0.18s ease, transform 0.18s ease;
+    transition: background-color 0.18s ease, transform 0.18s ease;
   }
 
   .icon-btn svg { width: 1.375rem; height: 1.375rem; display: block; }
 
-  .icon-btn:hover { border-color: var(--muted); }
+  .icon-btn:hover { background: var(--chip-hover); }
   .icon-btn:active { transform: translateY(1px); }
 
   a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
@@ -240,7 +241,7 @@
   </main>
 
   <footer>
-    MIT<span class="dot">&middot;</span>Built by <a href="https://x.com/nilbuild">Kamran Ahmed</a>
+    MIT<span class="dot">&middot;</span>Built by <a href="https://x.com/nilbuild">Kamran Ahmed</a><span class="dot">&middot;</span><a href="privacy.html">Privacy</a>
   </footer>
 </body>
 </html>
