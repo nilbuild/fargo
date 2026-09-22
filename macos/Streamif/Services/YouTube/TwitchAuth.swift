@@ -4,7 +4,7 @@ import Security
 
 @MainActor @Observable
 final class TwitchAuth {
-    static let clientId = "y9v1bdcjhi0dgymdxzyuiwbxetx6e0"
+    static let clientId = "93zm0ux9dq92ge1vzwbu41o06bjvhz"
     static let scopes = "chat:read user:read:email"
 
     static var isConfigured: Bool {
