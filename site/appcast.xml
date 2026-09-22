@@ -6,6 +6,26 @@
     <description>Most recent Streamif updates.</description>
     <language>en</language>
     <item>
+      <title>Version 0.1.2</title>
+      <pubDate>Tue, 22 Sep 2026 19:23:55 +0000</pubDate>
+      <sparkle:version>5</sparkle:version>
+      <sparkle:shortVersionString>0.1.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h3>What&#x27;s changed</h3>
+<ul>
+<li>Bump to 0.1.2 (build 5) (f3e968e)</li>
+<li>Pin the capture frame rate, and warn when the uplink cannot keep up (9698e32)</li>
+<li>Say which channel is signed in, and why it failed (bf67db9)</li>
+<li>Add v0.1.1 to the appcast [skip actions] (9a8fec0)</li>
+</ul>
+<h3>Install</h3>
+<p>Download <code>Streamif-0.1.2-universal.dmg</code>, drag Streamif to Applications, and launch it.</p>
+<p>The build is a universal binary, signed with a Developer ID certificate and notarized by Apple.</p>
+<p>Requires macOS 14.0 or later. Existing installs update themselves through Sparkle.</p>
+<p><strong>Full changelog</strong>: https://github.com/nilbuild/streamif/compare/v0.1.1...v0.1.2</p>]]></description>
+      <enclosure url="https://github.com/nilbuild/streamif/releases/download/v0.1.2/Streamif-0.1.2-universal.zip" length="20253893" type="application/octet-stream" sparkle:edSignature="pZTqJ0Skh943uf070/9h8NVSx8P05HZYLsoAfcGs4uvSDGCwpM/GxEHEV6O6UOJ8zzQLjkPf5Mu0o8q3pklpAw=="/>
+    </item>
+    <item>
       <title>Version 0.1.1</title>
       <pubDate>Tue, 22 Sep 2026 19:03:36 +0000</pubDate>
       <sparkle:version>4</sparkle:version>
