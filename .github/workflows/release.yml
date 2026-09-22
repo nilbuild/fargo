@@ -10,7 +10,7 @@ on:
         required: true
         type: string
       dry_run:
-        description: "Build and sign only - no notarization, no GitHub release, no gh-pages push"
+        description: "Build and sign only - no notarization, no GitHub release, no appcast commit"
         required: false
         default: false
         type: boolean
@@ -400,7 +400,7 @@ jobs:
             dist/Streamif-*.dmg
             dist/Streamif-*.zip
 
-      - name: Publish appcast to gh-pages
+      - name: Publish the appcast
         if: needs.preflight.outputs.dry_run != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -409,22 +409,12 @@ jobs:
           BUILD: ${{ steps.artifacts.outputs.build }}
           NOTES_PATH: ${{ runner.temp }}/release-notes.md
         run: |
-          PAGES_DIR="$RUNNER_TEMP/gh-pages"
-          REMOTE="https://x-access-token:$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git"
           DOWNLOAD_BASE="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG"
 
-          rm -rf "$PAGES_DIR"
-          if git ls-remote --exit-code --heads "$REMOTE" gh-pages > /dev/null 2>&1; then
-            git clone --depth 1 --branch gh-pages --quiet "$REMOTE" "$PAGES_DIR"
-          else
-            echo "::notice::gh-pages does not exist yet - creating it."
-            mkdir -p "$PAGES_DIR"
-            git -C "$PAGES_DIR" init --quiet --initial-branch=gh-pages
-            git -C "$PAGES_DIR" remote add origin "$REMOTE"
-          fi
-
-          # GitHub Pages runs Jekyll over branch sources unless told not to.
-          touch "$PAGES_DIR/.nojekyll"
+          # site/ is what Cloudflare serves at streamif.com, and SUFeedURL
+          # points at streamif.com/appcast.xml, so the feed has to live there.
+          git fetch --quiet origin main
+          git checkout --quiet -B main origin/main
 
           BUILD_ARG=""
           if [ -n "$BUILD" ]; then
@@ -437,29 +427,40 @@ jobs:
             $BUILD_ARG \
             --zip "$ZIP" \
             --notes-file "$NOTES_PATH" \
-            --appcast "$PAGES_DIR/appcast.xml" \
+            --appcast site/appcast.xml \
             --download-url-base "$DOWNLOAD_BASE"
 
-          if [ ! -s "$PAGES_DIR/appcast.xml" ]; then
-            echo "::error::scripts/generate-appcast.sh did not write $PAGES_DIR/appcast.xml"
+          if [ ! -s site/appcast.xml ]; then
+            echo "::error::scripts/generate-appcast.sh did not write site/appcast.xml"
             exit 1
           fi
-          python3 -c "import sys, xml.dom.minidom as m; m.parse(sys.argv[1])" "$PAGES_DIR/appcast.xml"
+          python3 -c "import sys, xml.dom.minidom as m; m.parse(sys.argv[1])" site/appcast.xml
 
-          # The site lives in site/ so it is reviewable in the repo rather
-          # than buried in this workflow.
-          cp -R site/. "$PAGES_DIR/"
-
-          git -C "$PAGES_DIR" add -A
-          if git -C "$PAGES_DIR" diff --cached --quiet; then
-            echo "::notice::gh-pages is already up to date."
+          if git diff --quiet -- site/appcast.xml; then
+            echo "::notice::The appcast already lists $TAG."
             exit 0
           fi
-          git -C "$PAGES_DIR" \
-            -c user.name='github-actions[bot]' \
-            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
-            commit --quiet -m "Publish appcast for $TAG"
-          git -C "$PAGES_DIR" push --quiet origin gh-pages
+
+          git add site/appcast.xml
+          git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit --quiet -m "Add $TAG to the appcast [skip ci]"
+
+          # A push landing on main between the fetch above and here would make
+          # this non-fast-forward, so rebase onto whatever arrived and retry.
+          for attempt in 1 2 3; do
+            if git push --quiet origin main; then
+              echo "Appcast published on attempt $attempt."
+              exit 0
+            fi
+            echo "::notice::Push rejected, rebasing and retrying."
+            git pull --rebase --quiet origin main || true
+            sleep 5
+          done
+
+          echo "::error::Could not push the appcast to main after 3 attempts."
+          exit 1
+
 
       - name: Upload build artifacts
         if: always()

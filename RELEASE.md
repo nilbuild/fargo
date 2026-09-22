@@ -41,13 +41,13 @@ to sign release archives. The public key goes into `Info.plist` under
 | `APPLE_TEAM_ID` | Apple Developer Team ID |
 | `SPARKLE_PRIVATE_KEY` | EdDSA private key from step 2, for signing the appcast |
 
-### 4. gh-pages / appcast
+### 4. The appcast
 
-The appcast is served from the `gh-pages` branch at
-`https://streamif.com/appcast.xml`. `SUFeedURL` in `Info.plist`
-already points there, so there is nothing to set up for each release. You only
-have to turn on GitHub Pages for that branch once (Settings → Pages → source:
-`gh-pages`).
+The appcast lives at `site/appcast.xml` in this repo. Cloudflare serves `site/`
+at `https://streamif.com`, so the feed ends up at
+`https://streamif.com/appcast.xml`, which is what `SUFeedURL` in `Info.plist`
+points at. The release workflow commits the new entry to `main` and Cloudflare
+redeploys on its own, so there is nothing to set up per release.
 
 ## Making a release
 
@@ -85,7 +85,7 @@ make appcast            # regenerate appcast.xml from release artifacts
    - Makes `Streamif-<version>-universal.dmg` and `.zip`
    - Signs the update archive with the Sparkle private key
    - Publishes to GitHub Releases
-   - Updates `appcast.xml` on `gh-pages`
+   - Commits the new `site/appcast.xml` entry to `main`
 
 `.github/workflows/ci.yml` runs on every PR. It does an unsigned build and
 `make test`. It is separate from the release pipeline.
@@ -103,9 +103,9 @@ release.yml (GitHub Actions)
       ├─ scripts/generate-appcast.sh     → appcast.xml entry
       │
       ▼
-GitHub Release (v1.2.3)          gh-pages branch
-  Streamif-1.2.3-universal.dmg  ←    appcast.xml (points here)
-  Streamif-1.2.3-universal.zip
+GitHub Release (v1.2.3)          site/appcast.xml on main
+  Streamif-1.2.3-universal.dmg  ←    served by Cloudflare at
+  Streamif-1.2.3-universal.zip       streamif.com/appcast.xml
       │
       ▼
 Existing installs poll SUFeedURL → Sparkle downloads .zip → verifies EdDSA
@@ -125,7 +125,7 @@ signature against SUPublicEDKey → installs update
 
 **Appcast does not update**
 - Check that `SPARKLE_PRIVATE_KEY` (CI) or `.sparkle/eddsa_private_key` (local) is there
-- Check that GitHub Pages is serving the `gh-pages` branch
+- Check that Cloudflare redeployed after the appcast commit landed on `main`
 - Run `make appcast` again on your Mac and diff it against the published file
 
 **The app does not update for users**
