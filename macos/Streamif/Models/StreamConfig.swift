@@ -83,18 +83,53 @@ struct StreamDestination: Identifiable, Codable {
     var fps: Int
     var enabled: Bool
 
-    init(from preset: PlatformPreset, rtmpUrl: String? = nil, streamKey: String) {
+    init(from preset: PlatformPreset, rtmpUrl: String? = nil, streamKey: String,
+         quality: StreamQuality? = nil) {
         self.id = UUID()
         self.name = preset.name
         self.platformId = preset.id
         self.rtmpUrl = rtmpUrl ?? preset.rtmpUrl
         self.streamKey = streamKey
-        self.videoBitrate = preset.videoBitrate
         self.audioBitrate = preset.audioBitrate
-        self.videoWidth = preset.videoWidth
-        self.videoHeight = preset.videoHeight
-        self.fps = preset.fps
+        self.videoBitrate = quality?.videoBitrate ?? preset.videoBitrate
+        self.videoWidth = quality?.width ?? preset.videoWidth
+        self.videoHeight = quality?.height ?? preset.videoHeight
+        self.fps = quality?.fps ?? preset.fps
         self.enabled = true
+    }
+}
+
+// MARK: - Stream Quality
+
+/// A resolution and bitrate a destination can be sent at. Presets carry each
+/// platform's maximum, which is rarely what a given broadcast is configured for.
+struct StreamQuality: Identifiable, Hashable {
+    let id: String
+    let label: String
+    let width: Int
+    let height: Int
+    let fps: Int
+    let videoBitrate: Int
+
+    static let all: [StreamQuality] = [
+        StreamQuality(id: "720p30", label: "720p30", width: 1280, height: 720, fps: 30, videoBitrate: 3_000_000),
+        StreamQuality(id: "1080p30", label: "1080p30", width: 1920, height: 1080, fps: 30, videoBitrate: 4_500_000),
+        StreamQuality(id: "1080p60", label: "1080p60", width: 1920, height: 1080, fps: 60, videoBitrate: 6_000_000),
+        StreamQuality(id: "1440p60", label: "1440p60", width: 2560, height: 1440, fps: 60, videoBitrate: 9_000_000),
+        StreamQuality(id: "2160p60", label: "4K60", width: 3840, height: 2160, fps: 60, videoBitrate: 20_000_000),
+    ]
+
+    /// Options a platform actually accepts, never above its documented ceiling.
+    static func options(for preset: PlatformPreset) -> [StreamQuality] {
+        let allowed = all.filter { $0.height <= preset.videoHeight && $0.fps <= preset.fps }
+        return allowed.isEmpty ? [all[0]] : allowed
+    }
+
+    /// 1080p60 where the platform allows it. The platform maximum is a ceiling,
+    /// not a sensible default, and it has to match how the broadcast was set up.
+    static func defaultOption(for preset: PlatformPreset) -> StreamQuality {
+        let opts = options(for: preset)
+        return opts.first { $0.id == "1080p60" } ?? opts.last ?? all[0]
     }
 }
 

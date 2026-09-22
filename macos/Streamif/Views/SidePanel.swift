@@ -119,8 +119,8 @@ struct DestinationsTab: View {
 
                 if showAddForm {
                     AddDestinationForm(
-                        onAdd: { preset, url, key in
-                            store.add(from: preset, rtmpUrl: url, streamKey: key)
+                        onAdd: { preset, url, key, quality in
+                            store.add(from: preset, rtmpUrl: url, streamKey: key, quality: quality)
                             showAddForm = false
                         },
                         onCancel: { showAddForm = false }
@@ -2518,7 +2518,7 @@ struct HealthStat: View {
 // MARK: - Add Destination
 
 struct AddDestinationForm: View {
-    var onAdd: (PlatformPreset, String?, String) -> Void
+    var onAdd: (PlatformPreset, String?, String, StreamQuality) -> Void
     var onCancel: () -> Void
 
     @State private var selectedPresetId = ""
@@ -2526,8 +2526,18 @@ struct AddDestinationForm: View {
     @State private var streamKey = ""
     @State private var streamKeyFocusToken = 0
 
+    @State private var selectedQualityId: String?
+
     private var trimmedKey: String {
         streamKey.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func quality(for preset: PlatformPreset) -> StreamQuality {
+        let options = StreamQuality.options(for: preset)
+        if let id = selectedQualityId, let match = options.first(where: { $0.id == id }) {
+            return match
+        }
+        return StreamQuality.defaultOption(for: preset)
     }
 
     @FocusState private var streamKeyFocused: Bool
@@ -2699,13 +2709,40 @@ struct AddDestinationForm: View {
                         )
                 }
 
-                HStack(spacing: 6) {
-                    Image(systemName: "info.circle")
-                        .font(.system(size: 9))
-                        .foregroundStyle(.white.opacity(0.3))
-                    Text("\(preset.videoWidth)×\(preset.videoHeight) · \(preset.videoBitrate / 1_000_000) Mbps · \(preset.fps) fps")
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("QUALITY")
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.35))
+
+                    let options = StreamQuality.options(for: preset)
+                    let chosen = quality(for: preset)
+
+                    HStack(spacing: 4) {
+                        ForEach(options) { option in
+                            Button { selectedQualityId = option.id } label: {
+                                Text(option.label)
+                                    .font(.system(size: 9, weight: .medium))
+                                    .lineLimit(1)
+                                    .fixedSize()
+                                    .padding(.horizontal, 7).padding(.vertical, 4)
+                                    .background(option.id == chosen.id ? Color.blue.opacity(0.25) : .white.opacity(0.05))
+                                    .foregroundStyle(option.id == chosen.id ? .blue : .white.opacity(0.5))
+                                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+
+                    Text(verbatim: "\(chosen.width)x\(chosen.height) · \(chosen.videoBitrate / 1_000_000) Mbps · \(chosen.fps) fps")
                         .font(.system(size: 9, design: .monospaced))
                         .foregroundStyle(.white.opacity(0.35))
+                        .lineLimit(1)
+
+                    Text("Match this to how the broadcast is set up on the platform.")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.white.opacity(0.25))
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.top, 2)
 
@@ -2740,7 +2777,7 @@ struct AddDestinationForm: View {
                         guard canAdd else {
                             return
                         }
-                        onAdd(preset, customUrl != preset.rtmpUrl ? customUrl : nil, trimmedKey)
+                        onAdd(preset, customUrl != preset.rtmpUrl ? customUrl : nil, trimmedKey, quality(for: preset))
                     } label: {
                         Text("Add Destination")
                             .font(.system(size: 11, weight: .semibold))

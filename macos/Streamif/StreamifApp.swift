@@ -96,8 +96,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 final class DestinationStore {
     var destinations: [StreamDestination] = []
 
-    func add(from preset: PlatformPreset, rtmpUrl: String? = nil, streamKey: String) {
-        destinations.append(StreamDestination(from: preset, rtmpUrl: rtmpUrl, streamKey: streamKey))
+    func add(from preset: PlatformPreset, rtmpUrl: String? = nil, streamKey: String,
+             quality: StreamQuality? = nil) {
+        destinations.append(StreamDestination(from: preset, rtmpUrl: rtmpUrl,
+                                              streamKey: streamKey, quality: quality))
         save()
     }
 
