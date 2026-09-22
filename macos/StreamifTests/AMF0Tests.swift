@@ -79,6 +79,23 @@ struct AMF0RoundTripTests {
         #expect(decoded.last?.asNumber == 42)
     }
 
+    // Strings over 64 KiB switch to the long-string marker, which has a 4 byte
+    // length instead of 2. The decoder has to read the same shape back.
+    @Test("long strings survive encode/decode")
+    func longStringRoundTrip() {
+        let text = String(repeating: "a", count: 0xFFFF + 1)
+        let encoded = AMF0.encode([.string(text), .number(7)])
+
+        #expect(encoded[0] == AMF0.typeLongString)
+        let length = Int(encoded[1]) << 24 | Int(encoded[2]) << 16 | Int(encoded[3]) << 8 | Int(encoded[4])
+        #expect(length == text.utf8.count)
+
+        let decoded = AMF0.decode(from: encoded)
+        #expect(decoded.count == 2)
+        #expect(decoded.first?.asString == text)
+        #expect(decoded.last?.asNumber == 7)
+    }
+
     @Test("objects preserve key order")
     func objectPreservesKeyOrder() throws {
         let value = AMF0.Value.object([

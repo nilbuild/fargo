@@ -12,6 +12,7 @@ enum AMF0 {
     static let typeUndefined: UInt8  = 0x06
     static let typeECMAArray: UInt8  = 0x08
     static let typeObjectEnd: UInt8  = 0x09
+    static let typeLongString: UInt8 = 0x0C
 
     // MARK: - AMF0 Value
 
@@ -49,7 +50,7 @@ enum AMF0 {
             let utf8 = s.utf8
             if utf8.count > 0xFFFF {
                 // Long string
-                data.append(0x0C)
+                data.append(typeLongString)
                 var len = UInt32(utf8.count).bigEndian
                 data.append(Data(bytes: &len, count: 4))
             } else {
@@ -127,6 +128,10 @@ enum AMF0 {
             guard let s = decodeString(from: data, offset: &offset) else { return nil }
             return .string(s)
 
+        case typeLongString:
+            guard let s = decodeLongString(from: data, offset: &offset) else { return nil }
+            return .string(s)
+
         case typeObject:
             var pairs: [(String, Value)] = []
             while offset + 2 < data.count {
@@ -168,6 +173,16 @@ enum AMF0 {
         guard offset + 2 <= data.count else { return nil }
         let len = Int(readUInt16(from: data, at: offset))
         offset += 2
+        guard offset + len <= data.count else { return nil }
+        let s = String(data: data[offset..<offset+len], encoding: .utf8)
+        offset += len
+        return s
+    }
+
+    private static func decodeLongString(from data: Data, offset: inout Int) -> String? {
+        guard offset + 4 <= data.count else { return nil }
+        let len = Int(readUInt32(from: data, at: offset))
+        offset += 4
         guard offset + len <= data.count else { return nil }
         let s = String(data: data[offset..<offset+len], encoding: .utf8)
         offset += len
