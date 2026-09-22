@@ -12,6 +12,14 @@
 <meta property="og:image" content="icon.png">
 <meta property="og:type" content="website">
 <style>
+  @font-face {
+    font-family: "Cal Sans";
+    src: url("calsans.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
   :root {
     color-scheme: light dark;
     --bg: #fcfcfd;
@@ -95,10 +103,11 @@
 
   h1 {
     margin: 0;
+    font-family: "Cal Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     font-size: clamp(2.5rem, 6vw, 4rem);
     line-height: 1;
-    letter-spacing: -0.04em;
-    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-weight: 400;
   }
 
   .sub {
@@ -186,7 +195,7 @@
   <main>
     <div class="brand">
       <img src="icon.png" alt="" width="512" height="512">
-      <h1>Streamif</h1>
+      <h1>streamif</h1>
     </div>
 
     <p class="sub">
