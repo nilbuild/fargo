@@ -10,5 +10,5 @@
 /Makefile               @nilbuild
 
 # Code signing, entitlements, update feed and OAuth redirect handling.
-/macos/Fargo/Fargo.entitlements   @nilbuild
-/macos/Fargo/Info.plist           @nilbuild
+/macos/Streamif/Streamif.entitlements   @nilbuild
+/macos/Streamif/Info.plist           @nilbuild

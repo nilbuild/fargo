@@ -160,9 +160,9 @@ jobs:
       - name: Check the committed project version matches the tag
         run: |
           COMMITTED=$(sed -n -E 's/.*MARKETING_VERSION = ([^;]+);.*/\1/p' \
-            macos/Fargo.xcodeproj/project.pbxproj | head -n 1)
+            macos/Streamif.xcodeproj/project.pbxproj | head -n 1)
           BUILD_NUMBER=$(sed -n -E 's/.*CURRENT_PROJECT_VERSION = ([0-9]+);.*/\1/p' \
-            macos/Fargo.xcodeproj/project.pbxproj | head -n 1)
+            macos/Streamif.xcodeproj/project.pbxproj | head -n 1)
           echo "Committed: MARKETING_VERSION=$COMMITTED CURRENT_PROJECT_VERSION=$BUILD_NUMBER"
 
           if [ "$COMMITTED" != "$VERSION" ]; then
@@ -174,9 +174,9 @@ jobs:
       - name: Check OAuth client ids are real
         run: |
           UNSET=""
-          grep -q 'YOUR_GOOGLE_OAUTH_CLIENT_ID' macos/Fargo/Services/YouTube/YouTubeAuth.swift && UNSET="$UNSET YouTubeAuth.clientId"
-          grep -q 'YOUR_TWITCH_CLIENT_ID' macos/Fargo/Services/YouTube/TwitchAuth.swift && UNSET="$UNSET TwitchAuth.clientId"
-          grep -q 'YOUR_GOOGLE_OAUTH_CLIENT_ID' macos/Fargo/Info.plist && UNSET="$UNSET Info.plist CFBundleURLSchemes"
+          grep -q 'YOUR_GOOGLE_OAUTH_CLIENT_ID' macos/Streamif/Services/YouTube/YouTubeAuth.swift && UNSET="$UNSET YouTubeAuth.clientId"
+          grep -q 'YOUR_TWITCH_CLIENT_ID' macos/Streamif/Services/YouTube/TwitchAuth.swift && UNSET="$UNSET TwitchAuth.clientId"
+          grep -q 'YOUR_GOOGLE_OAUTH_CLIENT_ID' macos/Streamif/Info.plist && UNSET="$UNSET Info.plist CFBundleURLSchemes"
 
           if [ -n "$UNSET" ]; then
             for NAME in $UNSET; do
@@ -195,7 +195,7 @@ jobs:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          KEYCHAIN_PATH: ${{ runner.temp }}/fargo-signing.keychain-db
+          KEYCHAIN_PATH: ${{ runner.temp }}/streamif-signing.keychain-db
           CERT_PATH: ${{ runner.temp }}/certificate.p12
         run: |
           printf '%s' "$BUILD_CERTIFICATE_BASE64" | base64 --decode > "$CERT_PATH"
@@ -258,8 +258,8 @@ jobs:
       - name: Inspect artifacts
         id: artifacts
         run: |
-          ZIP="$DIST_DIR/Fargo-$VERSION-universal.zip"
-          DMG="$DIST_DIR/Fargo-$VERSION-universal.dmg"
+          ZIP="$DIST_DIR/Streamif-$VERSION-universal.zip"
+          DMG="$DIST_DIR/Streamif-$VERSION-universal.dmg"
 
           for FILE in "$ZIP" "$DMG"; do
             if [ ! -f "$FILE" ]; then
@@ -280,7 +280,7 @@ jobs:
           fi
 
           # GENERATE_INFOPLIST_FILE=YES, so the version keys exist only in the
-          # built app, never in macos/Fargo/Info.plist. If neither it nor
+          # built app, never in macos/Streamif/Info.plist. If neither it nor
           # pbxproj answers, generate-appcast.sh falls back to its own default.
           PLIST="$APP/Contents/Info.plist"
           BUILD=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$PLIST" 2>/dev/null || true)
@@ -288,7 +288,7 @@ jobs:
 
           if [ -z "$BUILD" ]; then
             BUILD=$(sed -n -E 's/.*CURRENT_PROJECT_VERSION = ([0-9]+);.*/\1/p' \
-              macos/Fargo.xcodeproj/project.pbxproj | head -n 1)
+              macos/Streamif.xcodeproj/project.pbxproj | head -n 1)
             echo "::warning::CFBundleVersion missing from the built app; using CURRENT_PROJECT_VERSION=${BUILD:-unset} from project.pbxproj."
           fi
 
@@ -375,7 +375,7 @@ jobs:
             echo
             echo "## Install"
             echo
-            echo "Download \`Fargo-$VERSION-universal.dmg\`, drag Fargo to Applications, and launch it."
+            echo "Download \`Streamif-$VERSION-universal.dmg\`, drag Streamif to Applications, and launch it."
             echo "The build is a universal binary, signed with a Developer ID certificate and notarized by Apple."
             echo "Requires macOS 14.0 or later. Existing installs update themselves through Sparkle."
             if [ -n "$PREVIOUS" ]; then
@@ -391,14 +391,14 @@ jobs:
         uses: softprops/action-gh-release@v3.0.3
         with:
           tag_name: ${{ needs.preflight.outputs.tag }}
-          name: Fargo ${{ needs.preflight.outputs.version }}
+          name: Streamif ${{ needs.preflight.outputs.version }}
           body_path: ${{ runner.temp }}/release-notes.md
           draft: false
           prerelease: ${{ needs.preflight.outputs.prerelease == 'true' }}
           fail_on_unmatched_files: true
           files: |
-            dist/Fargo-*.dmg
-            dist/Fargo-*.zip
+            dist/Streamif-*.dmg
+            dist/Streamif-*.zip
 
       - name: Publish appcast to gh-pages
         if: needs.preflight.outputs.dry_run != 'true'
@@ -465,12 +465,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: fargo-${{ needs.preflight.outputs.version }}
+          name: streamif-${{ needs.preflight.outputs.version }}
           # Distributables and the log only: the output directory also holds a
           # multi-hundred-megabyte .xcarchive and the exported .app.
           path: |
-            dist/Fargo-*.dmg
-            dist/Fargo-*.zip
+            dist/Streamif-*.dmg
+            dist/Streamif-*.zip
             dist/build.log
           if-no-files-found: ignore
           retention-days: 14
@@ -478,7 +478,7 @@ jobs:
       - name: Clean up keychain
         if: always()
         env:
-          KEYCHAIN_PATH: ${{ runner.temp }}/fargo-signing.keychain-db
+          KEYCHAIN_PATH: ${{ runner.temp }}/streamif-signing.keychain-db
           CERT_PATH: ${{ runner.temp }}/certificate.p12
         run: |
           security list-keychains -d user -s login.keychain-db || true

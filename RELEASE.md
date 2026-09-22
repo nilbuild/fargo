@@ -1,6 +1,6 @@
-# Fargo Release Runbook
+# Streamif Release Runbook
 
-How to build a signed, notarized release of Fargo and ship it through Sparkle.
+How to build a signed, notarized release of Streamif and ship it through Sparkle.
 
 ## One-time setup
 
@@ -44,7 +44,7 @@ to sign release archives. The public key goes into `Info.plist` under
 ### 4. gh-pages / appcast
 
 The appcast is served from the `gh-pages` branch at
-`https://nilbuild.github.io/fargo/appcast.xml`. `SUFeedURL` in `Info.plist`
+`https://streamif.com/appcast.xml`. `SUFeedURL` in `Info.plist`
 already points there, so there is nothing to set up for each release. You only
 have to turn on GitHub Pages for that branch once (Settings → Pages → source:
 `gh-pages`).
@@ -56,7 +56,7 @@ have to turn on GitHub Pages for that branch once (Settings → Pages → source
 ```bash
 make build     # build
 make run       # build + launch
-make test      # run FargoTests
+make test      # run StreamifTests
 ```
 
 ### Local (signed + notarized)
@@ -82,7 +82,7 @@ make appcast            # regenerate appcast.xml from release artifacts
    - Builds a universal binary
    - Signs it with the Developer ID certificate
    - Notarizes it and staples the ticket
-   - Makes `Fargo-<version>-universal.dmg` and `.zip`
+   - Makes `Streamif-<version>-universal.dmg` and `.zip`
    - Signs the update archive with the Sparkle private key
    - Publishes to GitHub Releases
    - Updates `appcast.xml` on `gh-pages`
@@ -104,8 +104,8 @@ release.yml (GitHub Actions)
       │
       ▼
 GitHub Release (v1.2.3)          gh-pages branch
-  Fargo-1.2.3-universal.dmg  ←    appcast.xml (points here)
-  Fargo-1.2.3-universal.zip
+  Streamif-1.2.3-universal.dmg  ←    appcast.xml (points here)
+  Streamif-1.2.3-universal.zip
       │
       ▼
 Existing installs poll SUFeedURL → Sparkle downloads .zip → verifies EdDSA

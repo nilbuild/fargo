@@ -2,9 +2,9 @@
 # shellcheck shell=bash
 # shellcheck disable=SC2034  # these are consumed by the scripts that source this file
 
-APP_NAME="Fargo"
-SCHEME="Fargo"
-BUNDLE_ID="com.fargo.app"
+APP_NAME="Streamif"
+SCHEME="Streamif"
+BUNDLE_ID="com.streamif.app"
 
 _LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${_LIB_DIR}/../.." && pwd)"
@@ -18,9 +18,9 @@ SPARKLE_TOOLS_DIR="${SPARKLE_DIR}/tools"
 SPARKLE_PRIVATE_KEY_FILE="${SPARKLE_DIR}/eddsa_private_key"
 SPARKLE_PUBLIC_KEY_FILE="${SPARKLE_DIR}/eddsa_public_key"
 SPARKLE_TOOLS_VERSION="${SPARKLE_TOOLS_VERSION:-2.10.0}"
-SPARKLE_KEY_ACCOUNT="${SPARKLE_KEY_ACCOUNT:-fargo}"
+SPARKLE_KEY_ACCOUNT="${SPARKLE_KEY_ACCOUNT:-streamif}"
 
-GITHUB_REPO="${GITHUB_REPO:-nilbuild/fargo}"
+GITHUB_REPO="${GITHUB_REPO:-nilbuild/streamif}"
 DOWNLOAD_URL_BASE_DEFAULT="https://github.com/${GITHUB_REPO}/releases/download"
 MIN_SYSTEM_VERSION="${MIN_SYSTEM_VERSION:-14.0}"
 DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM:-6QG84AK9XP}"

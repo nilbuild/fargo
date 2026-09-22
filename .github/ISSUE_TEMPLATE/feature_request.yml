@@ -1,12 +1,12 @@
 name: Feature request
-description: Suggest something Fargo should do
+description: Suggest something Streamif should do
 labels: ["enhancement"]
 body:
   - type: textarea
     id: problem
     attributes:
       label: What problem does this solve
-      description: What do you want to do that Fargo cannot do today?
+      description: What do you want to do that Streamif cannot do today?
     validations:
       required: true
 

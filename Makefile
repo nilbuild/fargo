@@ -1,5 +1,5 @@
-APP_NAME       := Fargo
-SCHEME         := Fargo
+APP_NAME       := Streamif
+SCHEME         := Streamif
 PROJECT        := macos/$(APP_NAME).xcodeproj
 PBXPROJ        := $(PROJECT)/project.pbxproj
 SCRIPTS        := scripts

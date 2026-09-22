@@ -22,10 +22,10 @@ body:
       required: true
 
   - type: input
-    id: fargo-version
+    id: streamif-version
     attributes:
-      label: Fargo version
-      description: Fargo menu → About Fargo
+      label: Streamif version
+      description: Streamif menu → About Streamif
       placeholder: 0.1.0
     validations:
       required: true
@@ -68,7 +68,7 @@ body:
     attributes:
       label: Logs / console output
       description: |
-        Open Console.app, filter it to "Fargo", and copy the lines from the
+        Open Console.app, filter it to "Streamif", and copy the lines from the
         time the problem happened. Remove stream keys and OAuth tokens before
         you paste them here.
       render: shell

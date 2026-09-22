@@ -1,4 +1,4 @@
-# Fargo
+# Streamif
 
 A native macOS streaming studio. Stream to several platforms at once, record locally in 4K, and build your scene on the GPU.
 
@@ -6,7 +6,7 @@ A native macOS streaming studio. Stream to several platforms at once, record loc
 ![Swift](https://img.shields.io/badge/Swift-5-orange)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-<!-- ![Fargo screenshot](screenshot.png) -->
+<!-- ![Streamif screenshot](screenshot.png) -->
 
 ## Features
 
@@ -30,15 +30,15 @@ macOS 14.0 or later, Apple Silicon or Intel.
 
 ## Install
 
-Download the latest `.dmg` from [Releases](https://github.com/nilbuild/fargo/releases). The builds are signed with a Developer ID and notarized, so they open normally under Gatekeeper.
+Download the latest `.dmg` from [Releases](https://github.com/nilbuild/streamif/releases). The builds are signed with a Developer ID and notarized, so they open normally under Gatekeeper.
 
 ## Build from source
 
 You need Xcode 26 or later.
 
 ```bash
-git clone https://github.com/nilbuild/fargo
-cd fargo
+git clone https://github.com/nilbuild/streamif
+cd streamif
 make build   # build the app
 make run     # build and launch
 make test    # run the tests
@@ -51,12 +51,12 @@ overlays and captions all work without one, because a destination only needs the
 RTMP URL and stream key you paste in.
 
 The client IDs are built into the app, so you just sign in from the sidebar. They
-are public identifiers, not secrets. Both flows are public clients, so Fargo never
+are public identifiers, not secrets. Both flows are public clients, so Streamif never
 holds a client secret.
 
-If you fork Fargo and want chat to point at your own Google and Twitch projects,
+If you fork Streamif and want chat to point at your own Google and Twitch projects,
 replace `TwitchAuth.clientId` and `YouTubeAuth.clientId`. Register the Google client
-as type **iOS** with bundle id `com.fargo.app`, and put the reversed client id into
+as type **iOS** with bundle id `com.streamif.app`, and put the reversed client id into
 `CFBundleURLSchemes` in `Info.plist`. Register the Twitch app with client type
 **Public**. Picking Google's "Desktop app" type or Twitch's "Confidential" type forces
 a client secret, which breaks token refresh.

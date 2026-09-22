@@ -1,0 +1,717 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000010000000000000001 /* StreamifApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001; };
+		A10000010000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000002; };
+		A10000010000000000000003 /* SidePanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000003; };
+		A1B2C3D4E5F60002 /* InlineTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60001 /* InlineTextField.swift */; };
+		A10000010000000000000004 /* StreamConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000004; };
+		A10000010000000000000014 /* MediaPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000017; };
+		A10000010000000000000016 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000019; };
+		A10000010000000000000017 /* BackgroundBlur.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000020; };
+		A10000010000000000000018 /* Overlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000021; };
+		A10000010000000000000019 /* OverlaysView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000022; };
+		A10000010000000000000008 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000008; };
+		A10000010000000000000070 /* Sounds in Resources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000070; };
+		A10000010000000000000071 /* Wallpapers in Resources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000071; };
+		A10000010000000000000040 /* H264Encoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000040; };
+		A10000010000000000000041 /* AACEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000041; };
+		A10000010000000000000042 /* FLVTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000042; };
+		A10000010000000000000043 /* AMF0.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000043; };
+		A10000010000000000000044 /* RTMPChunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000044; };
+		A10000010000000000000045 /* RTMPHandshake.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000045; };
+		A10000010000000000000046 /* RTMPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000046; };
+		A10000010000000000000047 /* RTMPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000047; };
+		A10000010000000000000048 /* StreamOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000048; };
+		A10000010000000000000049 /* StreamManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000049; };
+		A10000010000000000000050 /* StreamStatsOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000050; };
+		A10000010000000000000051 /* LocalRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000051; };
+		A10000010000000000000052 /* AudioMixer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000052; };
+		A10000010000000000000060 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000060; };
+				A2410F2199D2AD52F621ED29 /* GIFPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B1087E73170E958F1936B9 /* GIFPlayer.swift */; };
+		A10000010000000000000061 /* MediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000061; };
+		A10000010000000000000062 /* SoundBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000062; };
+		A100000100000000000000C0 /* CaptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000100000000000000C0; };
+		A100000100000000000000C1 /* AudioBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000100000000000000C1; };
+		A10000010000000000000063 /* CanvasSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000063; };
+		A10000010000000000000080 /* YouTubeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000080; };
+		A10000010000000000000081 /* YouTubeAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000081; };
+		A10000010000000000000082 /* YouTubeAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000082; };
+		A10000010000000000000083 /* YouTubeChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000083; };
+		A10000010000000000000084 /* TwitchAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000084; };
+		A10000010000000000000085 /* TwitchChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000085; };
+		A10000010000000000000010 /* FramelessWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000013; };
+		A10000010000000000000011 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000014; };
+		A10000010000000000000012 /* SceneConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000015; };
+		A10000010000000000000030 /* MetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000030; };
+		A10000010000000000000031 /* MetalCompositor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000031; };
+		A10000010000000000000032 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000032; };
+		A10000010000000000000033 /* MetalPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000033; };
+		A10000010000000000000091 /* Updater.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000091 /* Updater.swift */; };
+		A10000010000000000000090 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = C20000010000000000000001 /* Sparkle */; };
+		A10000010000000000000101 /* StreamConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000101 /* StreamConfigTests.swift */; };
+		A10000010000000000000102 /* AMF0Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000102 /* AMF0Tests.swift */; };
+		A10000010000000000000103 /* FLVTagTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000103 /* FLVTagTests.swift */; };
+		A10000010000000000000110 /* StreamConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000004 /* StreamConfig.swift */; };
+		A10000010000000000000111 /* AMF0.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000043 /* AMF0.swift */; };
+		A10000010000000000000112 /* FLVTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000042 /* FLVTag.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A20000010000000000000001 /* StreamifApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamifApp.swift; sourceTree = "<group>"; };
+		A20000010000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A20000010000000000000003 /* SidePanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidePanel.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60001 /* InlineTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlineTextField.swift; sourceTree = "<group>"; };
+		A20000010000000000000004 /* StreamConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamConfig.swift; sourceTree = "<group>"; };
+		A20000010000000000000017 /* MediaPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPipeline.swift; sourceTree = "<group>"; };
+		A20000010000000000000019 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
+		A20000010000000000000020 /* BackgroundBlur.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundBlur.swift; sourceTree = "<group>"; };
+		A20000010000000000000021 /* Overlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay.swift; sourceTree = "<group>"; };
+		A20000010000000000000022 /* OverlaysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlaysView.swift; sourceTree = "<group>"; };
+		A20000010000000000000008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A20000010000000000000090 /* StreamifIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = StreamifIcon.icon; sourceTree = "<group>"; };
+		A20000010000000000000009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A20000010000000000000010 /* Streamif.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Streamif.entitlements; sourceTree = "<group>"; };
+		A20000010000000000000011 /* Streamif.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Streamif.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A20000010000000000000013 /* FramelessWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FramelessWindow.swift; sourceTree = "<group>"; };
+		A20000010000000000000014 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A20000010000000000000015 /* SceneConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneConfig.swift; sourceTree = "<group>"; };
+		A20000010000000000000030 /* MetalRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalRenderer.swift; sourceTree = "<group>"; };
+		A20000010000000000000031 /* MetalCompositor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalCompositor.swift; sourceTree = "<group>"; };
+		A20000010000000000000032 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		A20000010000000000000033 /* MetalPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalPreviewView.swift; sourceTree = "<group>"; };
+		A20000010000000000000040 /* H264Encoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = H264Encoder.swift; sourceTree = "<group>"; };
+		A20000010000000000000041 /* AACEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AACEncoder.swift; sourceTree = "<group>"; };
+		A20000010000000000000042 /* FLVTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FLVTag.swift; sourceTree = "<group>"; };
+		A20000010000000000000043 /* AMF0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AMF0.swift; sourceTree = "<group>"; };
+		A20000010000000000000044 /* RTMPChunk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTMPChunk.swift; sourceTree = "<group>"; };
+		A20000010000000000000045 /* RTMPHandshake.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTMPHandshake.swift; sourceTree = "<group>"; };
+		A20000010000000000000046 /* RTMPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTMPConnection.swift; sourceTree = "<group>"; };
+		A20000010000000000000047 /* RTMPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTMPClient.swift; sourceTree = "<group>"; };
+		A20000010000000000000048 /* StreamOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamOutput.swift; sourceTree = "<group>"; };
+		A20000010000000000000049 /* StreamManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamManager.swift; sourceTree = "<group>"; };
+		A20000010000000000000050 /* StreamStatsOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamStatsOverlay.swift; sourceTree = "<group>"; };
+		A20000010000000000000051 /* LocalRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalRecorder.swift; sourceTree = "<group>"; };
+		A20000010000000000000052 /* AudioMixer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMixer.swift; sourceTree = "<group>"; };
+		A20000010000000000000060 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+				A2B1087E73170E958F1936B9 /* GIFPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFPlayer.swift; sourceTree = "<group>"; };
+		A20000010000000000000061 /* MediaPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPlayer.swift; sourceTree = "<group>"; };
+		A20000010000000000000070 /* Sounds */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Sounds; sourceTree = "<group>"; };
+		A20000010000000000000071 /* Wallpapers */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Wallpapers; sourceTree = "<group>"; };
+		A20000010000000000000062 /* SoundBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundBoard.swift; sourceTree = "<group>"; };
+		A200000100000000000000C0 /* CaptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionService.swift; sourceTree = "<group>"; };
+		A200000100000000000000C1 /* AudioBus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBus.swift; sourceTree = "<group>"; };
+		A20000010000000000000063 /* CanvasSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasSource.swift; sourceTree = "<group>"; };
+		A20000010000000000000080 /* YouTubeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeModels.swift; sourceTree = "<group>"; };
+		A20000010000000000000081 /* YouTubeAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeAuth.swift; sourceTree = "<group>"; };
+		A20000010000000000000082 /* YouTubeAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeAPI.swift; sourceTree = "<group>"; };
+		A20000010000000000000083 /* YouTubeChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeChatService.swift; sourceTree = "<group>"; };
+		A20000010000000000000084 /* TwitchAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitchAuth.swift; sourceTree = "<group>"; };
+		A20000010000000000000085 /* TwitchChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitchChatService.swift; sourceTree = "<group>"; };
+		A20000010000000000000091 /* Updater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updater.swift; sourceTree = "<group>"; };
+		A20000010000000000000100 /* StreamifTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StreamifTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A20000010000000000000101 /* StreamConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamConfigTests.swift; sourceTree = "<group>"; };
+		A20000010000000000000102 /* AMF0Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AMF0Tests.swift; sourceTree = "<group>"; };
+		A20000010000000000000103 /* FLVTagTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FLVTagTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A30000010000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000010000000000000090 /* Sparkle in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A30000010000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A40000010000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A40000010000000000000002 /* Streamif */,
+				A40000010000000000000100 /* StreamifTests */,
+				A40000010000000000000099 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A40000010000000000000099 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000011 /* Streamif.app */,
+				A20000010000000000000100 /* StreamifTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A40000010000000000000100 /* StreamifTests */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000101 /* StreamConfigTests.swift */,
+				A20000010000000000000102 /* AMF0Tests.swift */,
+				A20000010000000000000103 /* FLVTagTests.swift */,
+			);
+			path = StreamifTests;
+			sourceTree = "<group>";
+		};
+		A40000010000000000000002 /* Streamif */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000001 /* StreamifApp.swift */,
+				A20000010000000000000009 /* Info.plist */,
+				A20000010000000000000010 /* Streamif.entitlements */,
+				A20000010000000000000008 /* Assets.xcassets */,
+				A20000010000000000000090 /* StreamifIcon.icon */,
+				A40000010000000000000009 /* Resources */,
+				A40000010000000000000003 /* Models */,
+				A40000010000000000000004 /* Views */,
+				A40000010000000000000005 /* Services */,
+			);
+			path = Streamif;
+			sourceTree = "<group>";
+		};
+		A40000010000000000000009 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000070 /* Sounds */,
+				A20000010000000000000071 /* Wallpapers */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		A40000010000000000000003 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000004 /* StreamConfig.swift */,
+				A20000010000000000000015 /* SceneConfig.swift */,
+				A20000010000000000000021 /* Overlay.swift */,
+				A20000010000000000000060 /* AppSettings.swift */,
+				A20000010000000000000063 /* CanvasSource.swift */,
+				A20000010000000000000080 /* YouTubeModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A40000010000000000000004 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000002 /* ContentView.swift */,
+				A20000010000000000000003 /* SidePanel.swift */,
+				A1B2C3D4E5F60001 /* InlineTextField.swift */,
+				A20000010000000000000013 /* FramelessWindow.swift */,
+				A20000010000000000000014 /* SettingsView.swift */,
+				A20000010000000000000022 /* OverlaysView.swift */,
+				A20000010000000000000033 /* MetalPreviewView.swift */,
+				A20000010000000000000050 /* StreamStatsOverlay.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A40000010000000000000005 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000017 /* MediaPipeline.swift */,
+				A20000010000000000000019 /* Persistence.swift */,
+				A20000010000000000000091 /* Updater.swift */,
+				A20000010000000000000020 /* BackgroundBlur.swift */,
+				A20000010000000000000051 /* LocalRecorder.swift */,
+				A20000010000000000000052 /* AudioMixer.swift */,
+				A2B1087E73170E958F1936B9 /* GIFPlayer.swift */,
+				A20000010000000000000061 /* MediaPlayer.swift */,
+				A20000010000000000000062 /* SoundBoard.swift */,
+				A200000100000000000000C0 /* CaptionService.swift */,
+				A200000100000000000000C1 /* AudioBus.swift */,
+				A20000010000000000000030 /* MetalRenderer.swift */,
+				A20000010000000000000031 /* MetalCompositor.swift */,
+				A20000010000000000000032 /* Shaders.metal */,
+				A40000010000000000000006 /* Encoding */,
+				A40000010000000000000007 /* RTMP */,
+				A40000010000000000000008 /* Streaming */,
+				A40000010000000000000080 /* YouTube */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A40000010000000000000080 /* YouTube */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000081 /* YouTubeAuth.swift */,
+				A20000010000000000000082 /* YouTubeAPI.swift */,
+				A20000010000000000000083 /* YouTubeChatService.swift */,
+				A20000010000000000000084 /* TwitchAuth.swift */,
+				A20000010000000000000085 /* TwitchChatService.swift */,
+			);
+			path = YouTube;
+			sourceTree = "<group>";
+		};
+		A40000010000000000000006 /* Encoding */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000040 /* H264Encoder.swift */,
+				A20000010000000000000041 /* AACEncoder.swift */,
+				A20000010000000000000042 /* FLVTag.swift */,
+			);
+			path = Encoding;
+			sourceTree = "<group>";
+		};
+		A40000010000000000000007 /* RTMP */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000043 /* AMF0.swift */,
+				A20000010000000000000044 /* RTMPChunk.swift */,
+				A20000010000000000000045 /* RTMPHandshake.swift */,
+				A20000010000000000000046 /* RTMPConnection.swift */,
+				A20000010000000000000047 /* RTMPClient.swift */,
+			);
+			path = RTMP;
+			sourceTree = "<group>";
+		};
+		A40000010000000000000008 /* Streaming */ = {
+			isa = PBXGroup;
+			children = (
+				A20000010000000000000048 /* StreamOutput.swift */,
+				A20000010000000000000049 /* StreamManager.swift */,
+			);
+			path = Streaming;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A50000010000000000000001 /* Streamif */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A70000010000000000000001 /* Build configuration list for PBXNativeTarget "Streamif" */;
+			buildPhases = (
+				A60000010000000000000001 /* Sources */,
+				A30000010000000000000001 /* Frameworks */,
+				A60000010000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Streamif;
+			packageProductDependencies = (
+				C20000010000000000000001 /* Sparkle */,
+			);
+			productName = Streamif;
+			productReference = A20000010000000000000011 /* Streamif.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A50000010000000000000002 /* StreamifTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A70000010000000000000003 /* Build configuration list for PBXNativeTarget "StreamifTests" */;
+			buildPhases = (
+				A60000010000000000000003 /* Sources */,
+				A30000010000000000000002 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = StreamifTests;
+			packageProductDependencies = (
+			);
+			productName = StreamifTests;
+			productReference = A20000010000000000000100 /* StreamifTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A80000010000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					A50000010000000000000001 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					A50000010000000000000002 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = A70000010000000000000002 /* Build configuration list for PBXProject "Streamif" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A40000010000000000000001;
+			packageReferences = (
+				C10000010000000000000001 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
+			productRefGroup = A40000010000000000000099 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A50000010000000000000001 /* Streamif */,
+				A50000010000000000000002 /* StreamifTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A60000010000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000010000000000000008 /* Assets.xcassets in Resources */,
+				A10000010000000000000070 /* Sounds in Resources */,
+				A10000010000000000000071 /* Wallpapers in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A60000010000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000010000000000000001 /* StreamifApp.swift in Sources */,
+				A10000010000000000000002 /* ContentView.swift in Sources */,
+				A10000010000000000000003 /* SidePanel.swift in Sources */,
+				A1B2C3D4E5F60002 /* InlineTextField.swift in Sources */,
+				A10000010000000000000004 /* StreamConfig.swift in Sources */,
+				A10000010000000000000014 /* MediaPipeline.swift in Sources */,
+				A10000010000000000000010 /* FramelessWindow.swift in Sources */,
+				A10000010000000000000011 /* SettingsView.swift in Sources */,
+				A10000010000000000000012 /* SceneConfig.swift in Sources */,
+				A10000010000000000000016 /* Persistence.swift in Sources */,
+				A10000010000000000000091 /* Updater.swift in Sources */,
+				A10000010000000000000017 /* BackgroundBlur.swift in Sources */,
+				A10000010000000000000018 /* Overlay.swift in Sources */,
+				A10000010000000000000019 /* OverlaysView.swift in Sources */,
+				A10000010000000000000030 /* MetalRenderer.swift in Sources */,
+				A10000010000000000000031 /* MetalCompositor.swift in Sources */,
+				A10000010000000000000032 /* Shaders.metal in Sources */,
+				A10000010000000000000033 /* MetalPreviewView.swift in Sources */,
+				A10000010000000000000040 /* H264Encoder.swift in Sources */,
+				A10000010000000000000041 /* AACEncoder.swift in Sources */,
+				A10000010000000000000042 /* FLVTag.swift in Sources */,
+				A10000010000000000000043 /* AMF0.swift in Sources */,
+				A10000010000000000000044 /* RTMPChunk.swift in Sources */,
+				A10000010000000000000045 /* RTMPHandshake.swift in Sources */,
+				A10000010000000000000046 /* RTMPConnection.swift in Sources */,
+				A10000010000000000000047 /* RTMPClient.swift in Sources */,
+				A10000010000000000000048 /* StreamOutput.swift in Sources */,
+				A10000010000000000000049 /* StreamManager.swift in Sources */,
+				A10000010000000000000050 /* StreamStatsOverlay.swift in Sources */,
+				A10000010000000000000051 /* LocalRecorder.swift in Sources */,
+				A10000010000000000000052 /* AudioMixer.swift in Sources */,
+				A10000010000000000000060 /* AppSettings.swift in Sources */,
+				A2410F2199D2AD52F621ED29 /* GIFPlayer.swift in Sources */,
+				A10000010000000000000061 /* MediaPlayer.swift in Sources */,
+				A10000010000000000000062 /* SoundBoard.swift in Sources */,
+				A100000100000000000000C0 /* CaptionService.swift in Sources */,
+				A100000100000000000000C1 /* AudioBus.swift in Sources */,
+				A10000010000000000000063 /* CanvasSource.swift in Sources */,
+				A10000010000000000000080 /* YouTubeModels.swift in Sources */,
+				A10000010000000000000081 /* YouTubeAuth.swift in Sources */,
+				A10000010000000000000082 /* YouTubeAPI.swift in Sources */,
+				A10000010000000000000083 /* YouTubeChatService.swift in Sources */,
+				A10000010000000000000084 /* TwitchAuth.swift in Sources */,
+				A10000010000000000000085 /* TwitchChatService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A60000010000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000010000000000000101 /* StreamConfigTests.swift in Sources */,
+				A10000010000000000000102 /* AMF0Tests.swift in Sources */,
+				A10000010000000000000103 /* FLVTagTests.swift in Sources */,
+				A10000010000000000000110 /* StreamConfig.swift in Sources */,
+				A10000010000000000000111 /* AMF0.swift in Sources */,
+				A10000010000000000000112 /* FLVTag.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		B10000010000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = StreamifIcon;
+				ASSETCATALOG_COMPILER_STANDALONE_ICON_BEHAVIOR = all;
+				ASSETCATALOG_OTHER_FLAGS = "$(SRCROOT)/Streamif/StreamifIcon.icon";
+				CODE_SIGN_ENTITLEMENTS = Streamif/Streamif.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6QG84AK9XP;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Streamif/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Streamif;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Streamif needs camera access to capture video for streaming.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Streamif needs microphone access to capture audio for streaming.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.streamif.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		B10000010000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = StreamifIcon;
+				ASSETCATALOG_COMPILER_STANDALONE_ICON_BEHAVIOR = all;
+				ASSETCATALOG_OTHER_FLAGS = "$(SRCROOT)/Streamif/StreamifIcon.icon";
+				CODE_SIGN_ENTITLEMENTS = Streamif/Streamif.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6QG84AK9XP;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Streamif/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Streamif;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Streamif needs camera access to capture video for streaming.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Streamif needs microphone access to capture audio for streaming.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.streamif.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		B10000010000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6QG84AK9XP;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.streamif.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		B10000010000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6QG84AK9XP;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.streamif.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		B20000010000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B20000010000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A70000010000000000000001 /* Build configuration list for PBXNativeTarget "Streamif" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B10000010000000000000001 /* Debug */,
+				B10000010000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A70000010000000000000003 /* Build configuration list for PBXNativeTarget "StreamifTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B10000010000000000000003 /* Debug */,
+				B10000010000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A70000010000000000000002 /* Build configuration list for PBXProject "Streamif" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B20000010000000000000001 /* Debug */,
+				B20000010000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C10000010000000000000001 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C20000010000000000000001 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C10000010000000000000001 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
+
+	};
+	rootObject = A80000010000000000000001 /* Project object */;
+}

@@ -21,8 +21,8 @@ defaults:
 
 env:
   XCODE_VERSION: "26.4.1"
-  XCODE_PROJECT: macos/Fargo.xcodeproj
-  XCODE_SCHEME: Fargo
+  XCODE_PROJECT: macos/Streamif.xcodeproj
+  XCODE_SCHEME: Streamif
   DERIVED_DATA: ${{ github.workspace }}/.derived-data
   SPM_CACHE: ${{ github.workspace }}/.spm-cache
   # Fork pull requests have no certificates. If tests fail to launch the host
@@ -59,7 +59,7 @@ jobs:
         uses: actions/cache@v6.1.0
         with:
           path: ${{ env.SPM_CACHE }}
-          key: spm-${{ runner.os }}-${{ runner.arch }}-xc${{ env.XCODE_VERSION }}-${{ hashFiles('macos/Fargo.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved', 'macos/Fargo.xcodeproj/project.pbxproj') }}
+          key: spm-${{ runner.os }}-${{ runner.arch }}-xc${{ env.XCODE_VERSION }}-${{ hashFiles('macos/Streamif.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved', 'macos/Streamif.xcodeproj/project.pbxproj') }}
           restore-keys: |
             spm-${{ runner.os }}-${{ runner.arch }}-xc${{ env.XCODE_VERSION }}-
 
@@ -172,7 +172,7 @@ jobs:
         uses: actions/cache@v6.1.0
         with:
           path: ${{ env.SPM_CACHE }}
-          key: spm-release-${{ runner.os }}-${{ runner.arch }}-xc${{ env.XCODE_VERSION }}-${{ hashFiles('macos/Fargo.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved', 'macos/Fargo.xcodeproj/project.pbxproj') }}
+          key: spm-release-${{ runner.os }}-${{ runner.arch }}-xc${{ env.XCODE_VERSION }}-${{ hashFiles('macos/Streamif.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved', 'macos/Streamif.xcodeproj/project.pbxproj') }}
           restore-keys: |
             spm-release-${{ runner.os }}-${{ runner.arch }}-xc${{ env.XCODE_VERSION }}-
 

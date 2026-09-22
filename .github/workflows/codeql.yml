@@ -49,7 +49,7 @@ jobs:
         uses: actions/cache@v6.1.0
         with:
           path: ${{ env.SPM_CACHE }}
-          key: spm-codeql-${{ runner.os }}-${{ runner.arch }}-xc${{ env.XCODE_VERSION }}-${{ hashFiles('macos/Fargo.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved', 'macos/Fargo.xcodeproj/project.pbxproj') }}
+          key: spm-codeql-${{ runner.os }}-${{ runner.arch }}-xc${{ env.XCODE_VERSION }}-${{ hashFiles('macos/Streamif.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved', 'macos/Streamif.xcodeproj/project.pbxproj') }}
           restore-keys: |
             spm-codeql-${{ runner.os }}-${{ runner.arch }}-xc${{ env.XCODE_VERSION }}-
 
@@ -63,8 +63,8 @@ jobs:
       - name: Build for CodeQL
         run: |
           xcodebuild clean build \
-            -project macos/Fargo.xcodeproj \
-            -scheme Fargo \
+            -project macos/Streamif.xcodeproj \
+            -scheme Streamif \
             -configuration Debug \
             -destination 'platform=macOS,arch=arm64' \
             -derivedDataPath "$RUNNER_TEMP/codeql-derived-data" \

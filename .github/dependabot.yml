@@ -20,7 +20,7 @@ updates:
           - "*"
 
   # Dependencies are declared inside the Xcode project, not a Package.swift.
-  # The directory is the one holding Fargo.xcodeproj, not the repository root.
+  # The directory is the one holding Streamif.xcodeproj, not the repository root.
   - package-ecosystem: "swift"
     directory: "/macos"
     schedule:

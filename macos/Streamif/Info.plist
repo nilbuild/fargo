@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIconName</key>
+	<string>StreamifIcon</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.streamif.app.google-oauth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.893873338434-rg1dv2qssh8gbqvr2a76bldljojar217</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSCameraReactionEffectGesturesEnabledDefault</key>
+	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>Streamif needs camera access to capture video for streaming.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Streamif needs microphone access to capture audio for streaming.</string>
+	<key>NSScreenCaptureUsageDescription</key>
+	<string>Streamif needs screen capture access for screen sharing during streams.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Streamif uses speech recognition to transcribe microphone audio into live captions.</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUFeedURL</key>
+	<string>https://streamif.com/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>F5Cgdd3k7F7rC4xFIk7JOGFiXMBZvnx6g0t5W2lI3nk=</string>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
+</dict>
+</plist>
