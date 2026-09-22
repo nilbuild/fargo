@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Streamif</title>
-<meta name="description" content="A native macOS streaming studio. Stream to several platforms at once, record locally in 4K, and build your scene on the GPU.">
+<meta name="description" content="A native macOS streaming studio. Go live on several platforms at once, record in 4K, and build your scene on the GPU.">
 <link rel="icon" href="icon.png" type="image/png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta property="og:title" content="Streamif">
-<meta property="og:description" content="A native macOS streaming studio. Stream to several platforms at once, record locally in 4K.">
+<meta property="og:description" content="A native macOS streaming studio. Go live on several platforms at once, record in 4K.">
 <meta property="og:image" content="icon.png">
 <meta property="og:type" content="website">
 <style>
@@ -17,10 +17,11 @@
     --bg: #fcfcfd;
     --fg: #0d0d10;
     --muted: #6d6d78;
-    --line: rgba(0, 0, 0, 0.09);
+    --line: rgba(0, 0, 0, 0.1);
+    --chip: rgba(0, 0, 0, 0.025);
     --accent: #f0402f;
     --accent-hover: #d83322;
-    --glow: rgba(240, 64, 47, 0.13);
+    --glow: rgba(240, 64, 47, 0.12);
   }
 
   @supports (color: color(display-p3 1 1 1)) {
@@ -35,21 +36,18 @@
       --bg: #08080a;
       --fg: #f4f4f6;
       --muted: #8b8b96;
-      --line: rgba(255, 255, 255, 0.11);
-      --glow: rgba(240, 64, 47, 0.18);
+      --line: rgba(255, 255, 255, 0.12);
+      --chip: rgba(255, 255, 255, 0.04);
+      --glow: rgba(240, 64, 47, 0.16);
     }
   }
 
   * { box-sizing: border-box; }
 
-  html {
-    -webkit-text-size-adjust: 100%;
-    overflow-x: hidden;
-  }
+  html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
 
   body {
     margin: 0;
-    min-height: 100vh;
     background: var(--bg);
     color: var(--fg);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
@@ -62,9 +60,7 @@
     content: "";
     position: fixed;
     inset: 0;
-    background:
-      radial-gradient(60rem 40rem at 12% -10%, var(--glow), transparent 70%),
-      radial-gradient(45rem 35rem at 95% 108%, var(--glow), transparent 72%);
+    background: radial-gradient(55rem 38rem at 10% -12%, var(--glow), transparent 68%);
     pointer-events: none;
     z-index: 0;
   }
@@ -72,52 +68,47 @@
   .wrap {
     position: relative;
     z-index: 1;
-    max-width: 78rem;
+    max-width: 68rem;
     margin: 0 auto;
-    padding-left: clamp(1.25rem, 5vw, 4.5rem);
-    padding-right: clamp(1.25rem, 5vw, 4.5rem);
+    padding-left: clamp(1.25rem, 5vw, 4rem);
+    padding-right: clamp(1.25rem, 5vw, 4rem);
   }
 
-  header {
-    padding-top: clamp(2rem, 5vw, 3.5rem);
-  }
+  header { padding-top: clamp(1.75rem, 4vw, 2.75rem); }
 
-  header img {
-    width: clamp(3.25rem, 5.5vw, 4.5rem);
-    height: auto;
-    display: block;
-  }
+  header img { width: clamp(2.75rem, 4vw, 3.5rem); height: auto; display: block; }
 
-  main {
-    padding-top: clamp(4rem, 14vh, 11rem);
-    padding-bottom: clamp(5rem, 16vh, 13rem);
+  /* Hero */
+
+  .hero {
+    padding-top: clamp(3rem, 9vh, 6rem);
+    padding-bottom: clamp(3rem, 8vh, 5rem);
   }
 
   h1 {
     margin: 0;
-    font-size: clamp(3rem, 10vw, 8.5rem);
-    line-height: 0.95;
-    letter-spacing: -0.045em;
+    font-size: clamp(2.75rem, 7vw, 5.25rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
     font-weight: 600;
   }
 
   .sub {
-    margin: clamp(1.5rem, 3.5vw, 2.5rem) 0 0;
-    font-size: clamp(1.125rem, 2.1vw, 1.75rem);
-    line-height: 1.45;
-    letter-spacing: -0.012em;
+    margin: clamp(1.25rem, 2.5vw, 1.75rem) 0 0;
+    font-size: clamp(1.0625rem, 1.7vw, 1.4rem);
+    line-height: 1.5;
+    letter-spacing: -0.01em;
     color: var(--muted);
-    max-width: 32ch;
-    font-weight: 400;
+    max-width: 38ch;
   }
 
   .actions {
-    margin-top: clamp(2.5rem, 5vw, 4rem);
+    margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    column-gap: clamp(1.25rem, 3vw, 2.25rem);
-    row-gap: 1.25rem;
+    column-gap: clamp(1.25rem, 2.5vw, 2rem);
+    row-gap: 1rem;
   }
 
   .btn {
@@ -127,10 +118,10 @@
     background: var(--accent);
     color: #fff;
     text-decoration: none;
-    font-size: clamp(1rem, 1.35vw, 1.2rem);
+    font-size: 1rem;
     font-weight: 550;
     letter-spacing: -0.01em;
-    padding: clamp(0.9rem, 1.5vw, 1.2rem) clamp(1.65rem, 3.2vw, 2.75rem);
+    padding: 0.85rem clamp(1.5rem, 2.5vw, 2.25rem);
     border-radius: 999px;
     transition: background-color 0.18s ease, transform 0.18s ease;
   }
@@ -138,8 +129,7 @@
   .btn:hover { background: var(--accent-hover); }
   .btn:active { transform: translateY(1px); }
 
-  .btn:focus-visible,
-  a:focus-visible {
+  .btn:focus-visible, a:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
   }
@@ -147,44 +137,110 @@
   .alt {
     color: var(--muted);
     text-decoration: none;
-    font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+    font-size: 0.975rem;
     border-bottom: 1px solid var(--line);
     padding-bottom: 2px;
     transition: color 0.18s ease, border-color 0.18s ease;
   }
 
-  .alt:hover {
-    color: var(--fg);
-    border-color: currentColor;
+  .alt:hover { color: var(--fg); border-color: currentColor; }
+
+  /* Sections */
+
+  section { border-top: 1px solid var(--line); padding: clamp(3.5rem, 8vw, 6rem) 0; }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(1.625rem, 3vw, 2.25rem);
+    letter-spacing: -0.03em;
+    font-weight: 600;
+    line-height: 1.15;
+  }
+
+  .lead {
+    margin: 1rem 0 0;
+    color: var(--muted);
+    font-size: clamp(1rem, 1.4vw, 1.125rem);
+    line-height: 1.55;
+    max-width: 44ch;
+  }
+
+  /* Platform chips */
+
+  .chips {
+    margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--chip);
+    font-size: 0.95rem;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+  }
+
+  .chip svg { width: 16px; height: 16px; flex: none; }
+
+  .chip .note { color: var(--muted); font-size: 0.85rem; }
+
+  .chip.ghost { border-style: dashed; color: var(--muted); }
+
+  /* Feature grid */
+
+  .grid {
+    margin-top: clamp(2.25rem, 4.5vw, 3.25rem);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: clamp(2rem, 4vw, 3rem) clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .feature svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.85;
+  }
+
+  .feature h3 {
+    margin: 0.85rem 0 0.4rem;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  .feature p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
   }
 
   footer {
     border-top: 1px solid var(--line);
-    padding: clamp(1.5rem, 3vw, 2rem) 0 clamp(2rem, 4vw, 3rem);
+    padding: clamp(1.75rem, 3vw, 2.25rem) 0 clamp(2.5rem, 5vw, 3.5rem);
     color: var(--muted);
     font-size: 0.9rem;
     line-height: 1.7;
   }
 
-  footer a {
-    color: inherit;
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-  }
+  footer a { color: inherit; text-decoration: none; border-bottom: 1px solid transparent; }
+  footer a:hover { color: var(--fg); border-color: var(--line); }
 
-  footer a:hover {
-    color: var(--fg);
-    border-color: var(--line);
-  }
+  .dot { padding: 0 0.7rem; opacity: 0.45; }
 
-  .dot {
-    padding: 0 0.7rem;
-    opacity: 0.45;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    * { transition: none !important; }
-  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
@@ -193,21 +249,131 @@
       <img src="icon.png" alt="Streamif" width="512" height="512">
     </header>
 
-    <main>
+    <div class="hero">
       <h1>Streamif</h1>
       <p class="sub">
         A native macOS streaming studio. Go live on several platforms at once,
         record in 4K, and build your scene on the GPU.
       </p>
-
       <div class="actions">
         <a class="btn" href="https://github.com/nilbuild/streamif/releases/latest">Download for macOS</a>
         <a class="alt" href="https://github.com/nilbuild/streamif">View source</a>
       </div>
-    </main>
+    </div>
+
+    <section>
+      <h2>Go live everywhere at once</h2>
+      <p class="lead">
+        Every destination gets its own connection, resolution and bitrate, all
+        from a single render pass. YouTube takes the full 4K feed while the rest
+        take 1080p.
+      </p>
+      <div class="chips">
+        <span class="chip">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8ZM10 15V9l5.2 3Z"/></svg>
+          YouTube <span class="note">4K</span>
+        </span>
+        <span class="chip">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.3 3 3 6.3v12.2h4.1V21h2.3l2.3-2.5h3.4L20 14V3Zm1.5 1.5h12.7v8.8l-2.6 2.7h-4.1L9.5 18.5v-2.5H5.8ZM11 7.6v4.6h1.5V7.6Zm4.1 0v4.6h1.5V7.6Z"/></svg>
+          Twitch
+        </span>
+        <span class="chip">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h5v5.5l4-5.5h6l-6 8 6 10h-6l-4-6.5V21H3Z"/></svg>
+          Kick
+        </span>
+        <span class="chip">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.7-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.2c-1.2 0-1.6.8-1.6 1.6V12h2.7l-.4 2.9h-2.3v7A10 10 0 0 0 22 12Z"/></svg>
+          Facebook
+        </span>
+        <span class="chip">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.8 10.6 21.2 2h-1.8l-6.4 7.5L7.9 2H2l7.8 11.3L2 22h1.8l6.8-7.9 5.4 7.9H22Zm-2.4 2.8-.8-1.1L4.4 3.3h2.7l5.1 7.3.8 1.1 6.6 9.4h-2.7Z"/></svg>
+          X
+        </span>
+        <span class="chip ghost">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 20v-7M8.5 13a3.5 3.5 0 0 1 7 0M5 13a7 7 0 0 1 14 0M12 20h0"/></svg>
+          Any RTMP server
+        </span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Everything in one app</h2>
+      <p class="lead">The things you do on every stream, without a second tool running.</p>
+
+      <div class="grid">
+        <div class="feature">
+          <svg viewBox="0 0 24 24"><path d="M3 7h11v10H3zM14 10l7-3v10l-7-3z"/></svg>
+          <h3>Camera and screen</h3>
+          <p>Any camera, any display or window, media files, images and GIFs.</p>
+        </div>
+
+        <div class="feature">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg>
+          <h3>Scenes on a canvas</h3>
+          <p>Camera, screen, picture in picture and media, or place sources freely.</p>
+        </div>
+
+        <div class="feature">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>
+          <h3>Record in 4K</h3>
+          <p>HEVC straight to disk while you stream, at full quality.</p>
+        </div>
+
+        <div class="feature">
+          <svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5zM3 16l9 5 9-5M3 12l9 5 9-5"/></svg>
+          <h3>Composited on the GPU</h3>
+          <p>One 4K Metal texture at 60fps, so the CPU stays free for encoding.</p>
+        </div>
+
+        <div class="feature">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
+          <h3>Blur the background</h3>
+          <p>On-device person segmentation, so no green screen is needed.</p>
+        </div>
+
+        <div class="feature">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 15h4M14 15h3M7 11h10"/></svg>
+          <h3>Overlays</h3>
+          <p>Text, images, media and chat, placed anywhere on the canvas.</p>
+        </div>
+
+        <div class="feature">
+          <svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H4l2-3a8 8 0 1 1 15-5Z"/><path d="M9 11h6M9 14h3"/></svg>
+          <h3>Live chat</h3>
+          <p>YouTube and Twitch chat in a panel, or featured on the stream.</p>
+        </div>
+
+        <div class="feature">
+          <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 13h3M13 13h4"/></svg>
+          <h3>Live captions</h3>
+          <p>On-device speech recognition, rendered as a styled overlay.</p>
+        </div>
+
+        <div class="feature">
+          <svg viewBox="0 0 24 24"><path d="M5 20v-7M12 20V4M19 20v-11"/><path d="M3 13h4M10 9h4M17 16h4"/></svg>
+          <h3>Mix your audio</h3>
+          <p>Mic and system audio with a noise gate, EQ, compressor and soundboard.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Built for the Mac</h2>
+      <p class="lead">
+        No FFmpeg, no browser runtime, no server. RTMP, FLV muxing and AMF0 are
+        written straight against VideoToolbox and Network.framework.
+      </p>
+      <div class="chips">
+        <span class="chip">Apple Silicon and Intel</span>
+        <span class="chip">Signed and notarized</span>
+        <span class="chip">Updates in app</span>
+        <span class="chip">macOS 14 or later</span>
+        <span class="chip">MIT licensed</span>
+      </div>
+    </section>
 
     <footer>
-      Free and open source. Requires macOS 14 or later.<span class="dot">&middot;</span><a href="privacy.html">Privacy</a>
+      Free and open source.<span class="dot">&middot;</span><a href="https://github.com/nilbuild/streamif">Source</a><span class="dot">&middot;</span><a href="privacy.html">Privacy</a>
     </footer>
   </div>
 </body>
