@@ -575,22 +575,33 @@ final class MediaPipeline {
     /// Asks the camera for a fixed frame rate. Left alone, a device runs at
     /// whatever it defaults to and auto-exposure is free to halve that in poor
     /// light, while the compositor and encoder keep assuming 60.
+    ///
+    /// Setting a duration outside the supported ranges raises an ObjC exception,
+    /// which unwinds through the Swift task and leaves the concurrency runtime
+    /// with a dangling executor record (later crashing in SwiftUI hit-testing).
+    /// So the duration must come from a range that really contains it: some
+    /// cameras report many discrete ranges like 30.00003-30.00003 fps, where
+    /// rounding the bounds to integers produces a rate outside every range.
     private func pinFrameRate(_ device: AVCaptureDevice, to target: Int32) {
         let supported = device.activeFormat.videoSupportedFrameRateRanges
-        guard let range = supported.first else { return }
-
-        let maxRate = Int32(range.maxFrameRate.rounded(.down))
-        let minRate = Int32(range.minFrameRate.rounded(.up))
-        let rate = max(minRate, min(target, maxRate))
-        guard rate > 0 else { return }
+        let wanted = Double(target)
+        let duration: CMTime
+        if supported.contains(where: { $0.minFrameRate <= wanted && wanted <= $0.maxFrameRate }) {
+            duration = CMTimeMake(value: 1, timescale: target)
+        } else if let fastest = supported.max(by: { $0.maxFrameRate < $1.maxFrameRate }) {
+            // Target isn't supported: use the fastest range's exact bound
+            // nearest to it, rather than a rounded rate that may not exist.
+            duration = fastest.maxFrameRate < wanted ? fastest.minFrameDuration : fastest.maxFrameDuration
+        } else {
+            return
+        }
 
         do {
             try device.lockForConfiguration()
             defer { device.unlockForConfiguration() }
-            let duration = CMTimeMake(value: 1, timescale: rate)
             device.activeVideoMinFrameDuration = duration
             device.activeVideoMaxFrameDuration = duration
-            print("[MediaPipeline] Camera pinned to \(rate) fps (device supports \(minRate)-\(maxRate))")
+            print("[MediaPipeline] Camera pinned to \(1 / duration.seconds) fps")
         } catch {
             print("[MediaPipeline] Could not pin camera frame rate: \(error)")
         }
