@@ -864,7 +864,7 @@ struct ColorWellButton: View {
             }
         }
         .buttonStyle(.plain)
-        .help("Pick custom color")
+        .tooltip("Pick custom color")
     }
 }
 

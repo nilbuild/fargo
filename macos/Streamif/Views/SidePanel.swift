@@ -71,7 +71,7 @@ struct SidePanel: View {
                     }
                     .buttonStyle(.plain)
                     .focusEffectDisabled()
-                    .help(tab.label)
+                    .tooltip(tab.label)
                 }
                 Spacer()
             }
@@ -217,7 +217,7 @@ struct AudioTab: View {
                                     .foregroundStyle(.white.opacity(0.3))
                             }
                             .buttonStyle(.plain)
-                            .help("Reset compressor values")
+                            .tooltip("Reset compressor values")
                         }
                         Toggle("", isOn: Binding(
                             get: { pipeline.compressorEnabled },
@@ -263,7 +263,7 @@ struct AudioTab: View {
                                     .foregroundStyle(.white.opacity(0.3))
                             }
                             .buttonStyle(.plain)
-                            .help("Reset equalizer values")
+                            .tooltip("Reset equalizer values")
                         }
                         Toggle("", isOn: Binding(
                             get: { pipeline.eqEnabled },
@@ -343,7 +343,7 @@ struct CanvasBackgroundCard: View {
                             .foregroundStyle(.white.opacity(0.3))
                     }
                     .buttonStyle(.plain)
-                    .help("Reset canvas settings")
+                    .tooltip("Reset canvas settings")
                 }
             }
 
@@ -719,7 +719,7 @@ struct MediaPresetEditor: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .help("Delete preset")
+                .tooltip("Delete preset")
             }
             .padding(.horizontal, 2)
             .onAppear {
@@ -889,7 +889,7 @@ private struct AppearanceControls: View {
                         .foregroundStyle(.white.opacity(0.4))
                 }
                 .buttonStyle(.plain)
-                .help("Reset advanced filters")
+                .tooltip("Reset advanced filters")
             }
             Toggle("", isOn: Binding(
                 get: { pipeline.colorCorrectionEnabled },
@@ -1731,7 +1731,7 @@ struct CanvasSourcesTab: View {
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .help("Delete canvas")
+                        .tooltip("Delete canvas")
                     }
                     .padding(.horizontal, 2)
                     .onAppear {
@@ -2060,7 +2060,7 @@ struct CanvasSourceRow: View {
                         .frame(width: 14)
                 }
                 .buttonStyle(.plain)
-                .help(source.isLocked ? "Unlock" : "Lock")
+                .tooltip(source.isLocked ? "Unlock" : "Lock")
 
                 Image(systemName: source.type.icon)
                     .font(.system(size: 10))
@@ -2110,7 +2110,7 @@ struct CanvasSourceRow: View {
                         .background(.white.opacity(0.08))
                         .clipShape(RoundedRectangle(cornerRadius: 4))
                         .contentShape(Rectangle())
-                }.buttonStyle(.plain).help(isExpanded ? "Collapse" : "Expand")
+                }.buttonStyle(.plain).tooltip(isExpanded ? "Collapse" : "Expand")
             }
             .padding(.horizontal, 8).padding(.vertical, 6)
             .contentShape(Rectangle())
@@ -2385,7 +2385,7 @@ struct DestinationCard: View {
                                 .font(.system(size: 10)).foregroundStyle(.white.opacity(0.25))
                         }
                     }
-                    .buttonStyle(.plain).help("Test connection")
+                    .buttonStyle(.plain).tooltip("Test connection")
 
                     Button { store.remove(destination.id) } label: {
                         Image(systemName: "trash").font(.system(size: 10)).foregroundStyle(.white.opacity(0.2))
