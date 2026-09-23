@@ -319,7 +319,7 @@ struct CanvasSceneButton: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .tooltip("Create a new canvas")
+            .help("Create a new canvas")
         } else {
             DropdownButton(
                 icon: "square.3.layers.3d",

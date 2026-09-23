@@ -131,33 +131,3 @@ class DraggableView: NSView {
     override func mouseDown(with event: NSEvent) { window?.performDrag(with: event) }
     override func mouseDragged(with event: NSEvent) { window?.performDrag(with: event) }
 }
-
-// MARK: - Tooltip
-
-// SwiftUI's .tooltip() crashes on macOS 27 when its tooltip hit-test reaches an NSViewRepresentable,
-// so tooltips go through AppKit's own NSView.toolTip instead.
-struct TooltipView: NSViewRepresentable {
-    let text: String
-
-    func makeNSView(context: Context) -> PassthroughView {
-        let view = PassthroughView()
-        view.toolTip = text
-        return view
-    }
-
-    func updateNSView(_ nsView: PassthroughView, context: Context) {
-        if nsView.toolTip != text {
-            nsView.toolTip = text
-        }
-    }
-}
-
-class PassthroughView: NSView {
-    override func hitTest(_ point: NSPoint) -> NSView? { nil }
-}
-
-extension View {
-    func tooltip(_ text: String) -> some View {
-        background(TooltipView(text: text))
-    }
-}
