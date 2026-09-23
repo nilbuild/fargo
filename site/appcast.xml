@@ -6,6 +6,27 @@
     <description>Most recent Streamif updates.</description>
     <language>en</language>
     <item>
+      <title>Version 0.1.4</title>
+      <pubDate>Wed, 23 Sep 2026 12:06:07 +0000</pubDate>
+      <sparkle:version>7</sparkle:version>
+      <sparkle:shortVersionString>0.1.4</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h3>What&#x27;s changed</h3>
+<ul>
+<li>Bump version to 0.1.4 (1f459a1)</li>
+<li>Restore native .help tooltips (026fb56)</li>
+<li>Crash on uncaught ObjC exceptions and catch them in pinFrameRate (d103eba)</li>
+<li>Fix the crashes on prod (9e85196)</li>
+<li>Add v0.1.3 to the appcast [skip actions] (9f7b6fa)</li>
+</ul>
+<h3>Install</h3>
+<p>Download <code>Streamif-0.1.4-universal.dmg</code>, drag Streamif to Applications, and launch it.</p>
+<p>The build is a universal binary, signed with a Developer ID certificate and notarized by Apple.</p>
+<p>Requires macOS 14.0 or later. Existing installs update themselves through Sparkle.</p>
+<p><strong>Full changelog</strong>: https://github.com/nilbuild/streamif/compare/v0.1.3...v0.1.4</p>]]></description>
+      <enclosure url="https://github.com/nilbuild/streamif/releases/download/v0.1.4/Streamif-0.1.4-universal.zip" length="20257488" type="application/octet-stream" sparkle:edSignature="S/AcQTnK+Ml+B0mHoS26WyBTJ02k+4s+HDd3y/DXw7WSZW89APFPBad1IXfti3SAQwXDv13O7fSb9weiQ3qwAQ=="/>
+    </item>
+    <item>
       <title>Version 0.1.3</title>
       <pubDate>Wed, 23 Sep 2026 08:46:08 +0000</pubDate>
       <sparkle:version>6</sparkle:version>
