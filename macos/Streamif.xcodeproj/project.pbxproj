@@ -13,6 +13,7 @@
 		A1B2C3D4E5F60002 /* InlineTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60001 /* InlineTextField.swift */; };
 		A10000010000000000000004 /* StreamConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000004; };
 		A10000010000000000000014 /* MediaPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000017; };
+		A100000100000000000000E0 /* ObjCException.m in Sources */ = {isa = PBXBuildFile; fileRef = A200000100000000000000E0; };
 		A10000010000000000000016 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000019; };
 		A10000010000000000000017 /* BackgroundBlur.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000020; };
 		A10000010000000000000018 /* Overlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000021; };
@@ -70,6 +71,9 @@
 		A1B2C3D4E5F60001 /* InlineTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlineTextField.swift; sourceTree = "<group>"; };
 		A20000010000000000000004 /* StreamConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamConfig.swift; sourceTree = "<group>"; };
 		A20000010000000000000017 /* MediaPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPipeline.swift; sourceTree = "<group>"; };
+		A200000100000000000000E0 /* ObjCException.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjCException.m; sourceTree = "<group>"; };
+		A200000100000000000000E1 /* ObjCException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjCException.h; sourceTree = "<group>"; };
+		A200000100000000000000E2 /* Streamif-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Streamif-Bridging-Header.h"; sourceTree = "<group>"; };
 		A20000010000000000000019 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		A20000010000000000000020 /* BackgroundBlur.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundBlur.swift; sourceTree = "<group>"; };
 		A20000010000000000000021 /* Overlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay.swift; sourceTree = "<group>"; };
@@ -173,6 +177,7 @@
 			children = (
 				A20000010000000000000001 /* StreamifApp.swift */,
 				A20000010000000000000009 /* Info.plist */,
+				A200000100000000000000E2 /* Streamif-Bridging-Header.h */,
 				A20000010000000000000010 /* Streamif.entitlements */,
 				A20000010000000000000008 /* Assets.xcassets */,
 				A20000010000000000000090 /* StreamifIcon.icon */,
@@ -225,6 +230,8 @@
 			isa = PBXGroup;
 			children = (
 				A20000010000000000000017 /* MediaPipeline.swift */,
+				A200000100000000000000E1 /* ObjCException.h */,
+				A200000100000000000000E0 /* ObjCException.m */,
 				A20000010000000000000019 /* Persistence.swift */,
 				A20000010000000000000091 /* Updater.swift */,
 				A20000010000000000000020 /* BackgroundBlur.swift */,
@@ -394,6 +401,7 @@
 				A1B2C3D4E5F60002 /* InlineTextField.swift in Sources */,
 				A10000010000000000000004 /* StreamConfig.swift in Sources */,
 				A10000010000000000000014 /* MediaPipeline.swift in Sources */,
+				A100000100000000000000E0 /* ObjCException.m in Sources */,
 				A10000010000000000000010 /* FramelessWindow.swift in Sources */,
 				A10000010000000000000011 /* SettingsView.swift in Sources */,
 				A10000010000000000000012 /* SceneConfig.swift in Sources */,
@@ -478,6 +486,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.streamif.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Streamif/Streamif-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -509,6 +518,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.streamif.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "Streamif/Streamif-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

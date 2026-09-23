@@ -599,8 +599,10 @@ final class MediaPipeline {
         do {
             try device.lockForConfiguration()
             defer { device.unlockForConfiguration() }
-            device.activeVideoMinFrameDuration = duration
-            device.activeVideoMaxFrameDuration = duration
+            try ObjCException.perform {
+                device.activeVideoMinFrameDuration = duration
+                device.activeVideoMaxFrameDuration = duration
+            }
             print("[MediaPipeline] Camera pinned to \(1 / duration.seconds) fps")
         } catch {
             print("[MediaPipeline] Could not pin camera frame rate: \(error)")
