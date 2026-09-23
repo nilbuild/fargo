@@ -277,16 +277,64 @@ final class AudioMixer {
         let totalSamples = Int(outputPCM.frameLength) * channels
         guard let floatData = outputPCM.floatChannelData else { return nil }
 
+        var result: [Float]
         if outputPCM.format.isInterleaved {
-            return Array(UnsafeBufferPointer(start: floatData[0], count: totalSamples))
+            result = Array(UnsafeBufferPointer(start: floatData[0], count: totalSamples))
         } else {
-            var result = [Float](repeating: 0, count: totalSamples)
+            result = [Float](repeating: 0, count: totalSamples)
             for ch in 0..<channels {
                 for i in 0..<Int(outputPCM.frameLength) {
                     result[i * channels + ch] = floatData[ch][i]
                 }
             }
-            return result
+        }
+
+        if source == .mic {
+            centerMono(&result)
+        }
+        return result
+    }
+
+    // Mono mics, and interfaces with the mic on input 1, arrive with signal on the left
+    // channel only. Collapse to mono and write it to both channels so the voice is centered.
+    // When one side is effectively silent use the live side alone, so the level doesn't
+    // drop 6dB from averaging with silence.
+    private func centerMono(_ samples: inout [Float]) {
+        guard channels == 2 else {
+            return
+        }
+        let frames = samples.count / 2
+        guard frames > 0 else {
+            return
+        }
+
+        var left = [Float](repeating: 0, count: frames)
+        var right = [Float](repeating: 0, count: frames)
+        for i in 0..<frames {
+            left[i] = samples[i * 2]
+            right[i] = samples[i * 2 + 1]
+        }
+
+        var leftRMS: Float = 0
+        var rightRMS: Float = 0
+        vDSP_rmsqv(left, 1, &leftRMS, vDSP_Length(frames))
+        vDSP_rmsqv(right, 1, &rightRMS, vDSP_Length(frames))
+
+        let silenceRatio: Float = 0.03
+        var mono: [Float]
+        if rightRMS < leftRMS * silenceRatio {
+            mono = left
+        } else if leftRMS < rightRMS * silenceRatio {
+            mono = right
+        } else {
+            mono = [Float](repeating: 0, count: frames)
+            var half: Float = 0.5
+            vDSP_vasm(left, 1, right, 1, &half, &mono, 1, vDSP_Length(frames))
+        }
+
+        for i in 0..<frames {
+            samples[i * 2] = mono[i]
+            samples[i * 2 + 1] = mono[i]
         }
     }
 
