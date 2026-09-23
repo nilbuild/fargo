@@ -10,7 +10,14 @@ final class LocalRecorder {
     private var audioWriterInput: AVAssetWriterInput?
     private var recordingStartTime: CMTime?
 
+    // start/stop run on main while frames arrive on the render and audio queues.
+    // AVAssetWriter raises ObjC exceptions on appends after markAsFinished, so all
+    // writer access is serialized.
+    private let lock = NSLock()
+
     func start() {
+        lock.lock()
+        defer { lock.unlock() }
         guard !isRecording else { return }
 
         let moviesDir = FileManager.default.urls(for: .moviesDirectory, in: .userDomainMask).first!
@@ -51,10 +58,17 @@ final class LocalRecorder {
             let audioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
             audioInput.expectsMediaDataInRealTime = true
 
-            if writer.canAdd(videoInput) { writer.add(videoInput) }
-            if writer.canAdd(audioInput) { writer.add(audioInput) }
+            guard writer.canAdd(videoInput), writer.canAdd(audioInput) else {
+                print("[Streamif] Recording error: writer rejected its inputs")
+                return
+            }
+            writer.add(videoInput)
+            writer.add(audioInput)
 
-            writer.startWriting()
+            guard writer.startWriting() else {
+                print("[Streamif] Recording error: \(writer.error?.localizedDescription ?? "startWriting failed")")
+                return
+            }
 
             assetWriter = writer
             videoWriterInput = videoInput
@@ -69,6 +83,8 @@ final class LocalRecorder {
     }
 
     func stop() {
+        lock.lock()
+        defer { lock.unlock() }
         guard isRecording else { return }
         isRecording = false
 
@@ -85,7 +101,10 @@ final class LocalRecorder {
     }
 
     func writeVideo(_ sampleBuffer: CMSampleBuffer) {
+        lock.lock()
+        defer { lock.unlock() }
         guard isRecording,
+              assetWriter?.status == .writing,
               let input = videoWriterInput,
               input.isReadyForMoreMediaData else { return }
 
@@ -99,7 +118,10 @@ final class LocalRecorder {
     }
 
     func writeAudio(_ sampleBuffer: CMSampleBuffer) {
+        lock.lock()
+        defer { lock.unlock() }
         guard isRecording,
+              assetWriter?.status == .writing,
               let input = audioWriterInput,
               input.isReadyForMoreMediaData,
               recordingStartTime != nil else { return }

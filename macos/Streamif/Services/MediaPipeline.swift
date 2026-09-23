@@ -1307,11 +1307,16 @@ final class MediaPipeline {
                 sessionQueue.async {
                     let session = AVCaptureSession()
                     session.beginConfiguration()
-                    session.sessionPreset = preset
                     do {
                         let input = try AVCaptureDeviceInput(device: device)
                         if session.canAddInput(input) {
                             session.addInput(input)
+                        }
+                        // The main camera's preset may be one this device can't do.
+                        if session.canSetSessionPreset(preset) {
+                            session.sessionPreset = preset
+                        } else if session.canSetSessionPreset(.hd1920x1080) {
+                            session.sessionPreset = .hd1920x1080
                         }
                         let output = AVCaptureVideoDataOutput()
                         output.videoSettings = [
