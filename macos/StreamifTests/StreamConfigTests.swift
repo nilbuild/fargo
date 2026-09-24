@@ -107,6 +107,62 @@ struct StreamDestinationTests {
     }
 }
 
+@Suite("Stream quality")
+struct StreamQualityTests {
+
+    private func preset(_ id: String) throws -> PlatformPreset {
+        try #require(PlatformPreset.presets.first { $0.id == id })
+    }
+
+    private func option(_ id: String, for platform: String) throws -> StreamQuality {
+        try #require(StreamQuality.options(for: try preset(platform)).first { $0.id == id })
+    }
+
+    @Test("YouTube gets its recommended bitrates, capped at its ceiling")
+    func youtubeBitrates() throws {
+        #expect(try option("1080p60", for: "youtube").videoBitrate == 12_000_000)
+        #expect(try option("1080p30", for: "youtube").videoBitrate == 10_000_000)
+        #expect(try option("2160p60", for: "youtube").videoBitrate == 20_000_000)
+    }
+
+    @Test("other platforms keep the generic bitrates")
+    func otherPlatformBitrates() throws {
+        #expect(try option("1080p60", for: "twitch").videoBitrate == 6_000_000)
+        #expect(try option("1080p30", for: "x").videoBitrate == 4_500_000)
+    }
+
+    @Test("no option exceeds its platform's bitrate ceiling")
+    func optionsRespectCeiling() {
+        for preset in PlatformPreset.presets {
+            for option in StreamQuality.options(for: preset) {
+                #expect(option.videoBitrate <= preset.videoBitrate, "\(preset.id) \(option.id)")
+            }
+        }
+    }
+
+    @Test("a YouTube destination saved at the old generic rate is upgraded")
+    func upgradesOldYouTubeDestination() throws {
+        let old = try #require(StreamQuality.all.first { $0.id == "1080p60" })
+        let destination = StreamDestination(from: try preset("youtube"), streamKey: "k", quality: old)
+
+        #expect(StreamQuality.upgradedBitrate(for: destination) == 12_000_000)
+    }
+
+    @Test("custom and non-YouTube bitrates are left alone")
+    func leavesOtherDestinationsAlone() throws {
+        var youtube = StreamDestination(from: try preset("youtube"), streamKey: "k",
+                                        quality: try option("1080p60", for: "youtube"))
+        #expect(StreamQuality.upgradedBitrate(for: youtube) == nil)
+
+        youtube.videoBitrate = 7_500_000
+        #expect(StreamQuality.upgradedBitrate(for: youtube) == nil)
+
+        let twitch = StreamDestination(from: try preset("twitch"), streamKey: "k",
+                                       quality: try option("1080p60", for: "twitch"))
+        #expect(StreamQuality.upgradedBitrate(for: twitch) == nil)
+    }
+}
+
 @Suite("Stream status")
 struct StreamStatusTests {
 

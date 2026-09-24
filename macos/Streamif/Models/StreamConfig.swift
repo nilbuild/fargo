@@ -119,10 +119,45 @@ struct StreamQuality: Identifiable, Hashable {
         StreamQuality(id: "2160p60", label: "4K60", width: 3840, height: 2160, fps: 60, videoBitrate: 20_000_000),
     ]
 
+    /// YouTube's recommended H.264 bitrates. It re-encodes everything it ingests, so the
+    /// generic rates above leave screen text blocky there.
+    private static let youtubeBitrates: [String: Int] = [
+        "720p30": 4_000_000,
+        "1080p30": 10_000_000,
+        "1080p60": 12_000_000,
+        "1440p60": 18_000_000,
+        "2160p60": 20_000_000,
+    ]
+
     /// Options a platform actually accepts, never above its documented ceiling.
     static func options(for preset: PlatformPreset) -> [StreamQuality] {
-        let allowed = all.filter { $0.height <= preset.videoHeight && $0.fps <= preset.fps }
+        let allowed = all
+            .filter { $0.height <= preset.videoHeight && $0.fps <= preset.fps }
+            .map { $0.withBitrate(recommendedBitrate(for: $0, platformId: preset.id, ceiling: preset.videoBitrate)) }
         return allowed.isEmpty ? [all[0]] : allowed
+    }
+
+    static func recommendedBitrate(for quality: StreamQuality, platformId: String, ceiling: Int) -> Int {
+        let rate = platformId == "youtube" ? youtubeBitrates[quality.id] ?? quality.videoBitrate : quality.videoBitrate
+        return min(rate, ceiling)
+    }
+
+    /// Destinations saved before YouTube had its own rates still carry the generic one.
+    static func upgradedBitrate(for destination: StreamDestination) -> Int? {
+        guard destination.platformId == "youtube",
+              let preset = PlatformPreset.presets.first(where: { $0.id == "youtube" }),
+              let quality = all.first(where: {
+                  $0.width == destination.videoWidth && $0.height == destination.videoHeight && $0.fps == destination.fps
+              }),
+              destination.videoBitrate == quality.videoBitrate else {
+            return nil
+        }
+        let upgraded = recommendedBitrate(for: quality, platformId: preset.id, ceiling: preset.videoBitrate)
+        return upgraded == destination.videoBitrate ? nil : upgraded
+    }
+
+    private func withBitrate(_ bitrate: Int) -> StreamQuality {
+        StreamQuality(id: id, label: label, width: width, height: height, fps: fps, videoBitrate: bitrate)
     }
 
     /// 1080p60 where the platform allows it. The platform maximum is a ceiling,

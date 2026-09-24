@@ -143,5 +143,17 @@ final class DestinationStore {
     }
 
     func save() { Persistence.saveDestinations(destinations) }
-    func load() { destinations = Persistence.loadDestinations() }
+    func load() {
+        destinations = Persistence.loadDestinations()
+        var upgraded = false
+        for i in destinations.indices {
+            if let bitrate = StreamQuality.upgradedBitrate(for: destinations[i]) {
+                destinations[i].videoBitrate = bitrate
+                upgraded = true
+            }
+        }
+        if upgraded {
+            save()
+        }
+    }
 }
