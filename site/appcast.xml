@@ -6,6 +6,25 @@
     <description>Most recent Streamif updates.</description>
     <language>en</language>
     <item>
+      <title>Version 0.1.7</title>
+      <pubDate>Thu, 24 Sep 2026 09:20:46 +0000</pubDate>
+      <sparkle:version>10</sparkle:version>
+      <sparkle:shortVersionString>0.1.7</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h3>What&#x27;s changed</h3>
+<ul>
+<li>Bump version to 0.1.7 (299e14e)</li>
+<li>Show and edit destination settings, drop redundant camera icon (07a46ce)</li>
+<li>Add v0.1.6 to the appcast [skip actions] (3f4753e)</li>
+</ul>
+<h3>Install</h3>
+<p>Download <code>Streamif-0.1.7-universal.dmg</code>, drag Streamif to Applications, and launch it.</p>
+<p>The build is a universal binary, signed with a Developer ID certificate and notarized by Apple.</p>
+<p>Requires macOS 14.0 or later. Existing installs update themselves through Sparkle.</p>
+<p><strong>Full changelog</strong>: https://github.com/nilbuild/streamif/compare/v0.1.6...v0.1.7</p>]]></description>
+      <enclosure url="https://github.com/nilbuild/streamif/releases/download/v0.1.7/Streamif-0.1.7-universal.zip" length="20331228" type="application/octet-stream" sparkle:edSignature="GgAORc2huExvT3LQzRqBNvq5Uh3n4mzPzFaKmusE2toyGmzupfzLst3ss+DZDaS755Y9QOfWbNWXzqeyRSAzAg=="/>
+    </item>
+    <item>
       <title>Version 0.1.6</title>
       <pubDate>Thu, 24 Sep 2026 08:54:55 +0000</pubDate>
       <sparkle:version>9</sparkle:version>
