@@ -2605,6 +2605,7 @@ struct DestinationSettingsForm: View {
     @State private var rtmpUrl = ""
     @State private var streamKey = ""
     @State private var showKey = false
+    @State private var keyFocusToken = 0
     @State private var selectedQualityId: String?
 
     private var preset: PlatformPreset? {
@@ -2658,16 +2659,13 @@ struct DestinationSettingsForm: View {
 
             field("STREAM KEY") {
                 HStack(spacing: 6) {
-                    Group {
-                        if showKey {
-                            TextField("Stream key", text: $streamKey)
-                        } else {
-                            SecureField("Stream key", text: $streamKey)
-                        }
-                    }
-                    .textFieldStyle(.plain)
-                    .font(.system(size: 11))
-                    .focusEffectDisabled()
+                    InlineTextField(
+                        text: $streamKey,
+                        placeholder: "Stream key",
+                        isSecure: !showKey,
+                        focusTrigger: keyFocusToken
+                    )
+                    .id(showKey)
 
                     Button { showKey.toggle() } label: {
                         Image(systemName: showKey ? "eye.slash" : "eye")
@@ -2682,6 +2680,7 @@ struct DestinationSettingsForm: View {
                 .background(.white.opacity(0.06))
                 .clipShape(RoundedRectangle(cornerRadius: 6))
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(.white.opacity(0.06), lineWidth: 1))
+                .focusesInlineField(on: $keyFocusToken)
             }
 
             field("QUALITY") {

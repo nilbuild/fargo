@@ -42,12 +42,13 @@ struct InlineTextField: NSViewRepresentable {
     var textColor: NSColor = .white.withAlphaComponent(0.9)
     var autoFocus: Bool = false
     var selectAllOnFocus: Bool = false
+    var isSecure: Bool = false
     var focusTrigger: Int = 0
     var onCommit: () -> Void = {}
     var onCancel: (() -> Void)? = nil
 
-    func makeNSView(context: Context) -> InlineNSTextField {
-        let textField = InlineNSTextField()
+    func makeNSView(context: Context) -> NSTextField {
+        let textField = isSecure ? NSSecureTextField() : InlineNSTextField()
         textField.delegate = context.coordinator
         textField.isBordered = false
         textField.drawsBackground = false
@@ -59,15 +60,17 @@ struct InlineTextField: NSViewRepresentable {
         textField.cell?.isScrollable = true
         textField.stringValue = text
         textField.placeholderString = placeholder
-        textField.shouldAutoFocus = autoFocus
-        textField.shouldSelectAll = selectAllOnFocus
+        if let inlineField = textField as? InlineNSTextField {
+            inlineField.shouldAutoFocus = autoFocus
+            inlineField.shouldSelectAll = selectAllOnFocus
+        }
         textField.setContentHuggingPriority(.defaultLow, for: .horizontal)
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         context.coordinator.lastFocusTrigger = focusTrigger
         return textField
     }
 
-    func updateNSView(_ nsView: InlineNSTextField, context: Context) {
+    func updateNSView(_ nsView: NSTextField, context: Context) {
         if nsView.stringValue != text && nsView.currentEditor() == nil {
             nsView.stringValue = text
         }
