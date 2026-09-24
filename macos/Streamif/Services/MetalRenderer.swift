@@ -138,6 +138,10 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
     private let hazardEvent: MTLEvent
     private var hazardValue: UInt64 = 0
 
+    // The newest composited frame, for the preview to show.
+    private let latestFrameLock = NSLock()
+    private var _latestFrame: MTLTexture?
+
     // Each entry caches its MTLTexture wrapper so the render thread never calls
     // CVMetalTextureCacheCreateTextureFromImage.
     private let poolLock = NSLock()
@@ -148,13 +152,14 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
     private var streamingTexture: MTLTexture?
 
     var onFrame: ((MTLCommandBuffer) -> [RenderQuad])?
-    // Called with the frame's draw-start time. Stamping at GPU completion instead jitters
+    // Called with the frame's scheduled time. Stamping at GPU completion instead jitters
     // by a few ms, which shows as uneven motion and uneven 30fps frame picks.
     var onOutput: ((CVPixelBuffer, CMTime) -> Void)?
     // The 4K copy is only needed for recording or a destination above 1080p. Skipping it
     // otherwise saves a full 4K blit per frame.
     var wantsFullResOutput: (() -> Bool)?
     var onStreamingOutput: ((CVPixelBuffer, CMTime) -> Void)?
+    // Preview only: runs on main before each preview draw.
     var onBeforeDraw: (() -> Void)?
 
     var selectionBorderFrame: SIMD4<Float>?
@@ -235,6 +240,54 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
 
         setupOffscreen()
         setupOutputBuffers()
+        startRenderLoop()
+    }
+
+    // MARK: - Render loop
+
+    // The stream is rendered here at a fixed 60 Hz, independent of the preview. Driven by
+    // MTKView it ran on main, so any UI hitch dropped stream frames, and macOS stops a
+    // hidden or fully covered window's display link, which froze the stream.
+    private func startRenderLoop() {
+        let thread = Thread { [weak self] in
+            self?.runRenderLoop()
+        }
+        thread.name = "com.streamif.render"
+        thread.qualityOfService = .userInteractive
+        thread.start()
+    }
+
+    private func runRenderLoop() {
+        var timebase = mach_timebase_info_data_t()
+        mach_timebase_info(&timebase)
+        let interval = 1_000_000_000 / 60 * UInt64(timebase.denom) / UInt64(timebase.numer)
+
+        var next = mach_absolute_time()
+        while true {
+            autoreleasepool {
+                // Stamped with the scheduled tick, so timestamps sit on an exact 60 Hz grid.
+                renderFrame(frameTime: CMClockMakeHostTimeFromSystemUnits(next))
+            }
+            next += interval
+            let now = mach_absolute_time()
+            if now > next + interval {
+                // Fell more than a frame behind. Skip ahead rather than burst to catch up.
+                next = now
+            }
+            mach_wait_until(next)
+        }
+    }
+
+    private func setLatestFrame(_ texture: MTLTexture) {
+        latestFrameLock.lock()
+        _latestFrame = texture
+        latestFrameLock.unlock()
+    }
+
+    private func latestFrame() -> MTLTexture? {
+        latestFrameLock.lock()
+        defer { latestFrameLock.unlock() }
+        return _latestFrame
     }
 
     // MARK: - Configuration
@@ -678,36 +731,11 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
 
     func draw(in view: MTKView) {
-        let frameTime = CMClockGetTime(CMClockGetHostTimeClock())
         onBeforeDraw?()
 
-        // Block until a slot frees up. Same pattern as Apple's Metal triple-buffering samples.
-        inFlightSemaphore.wait()
-
-        guard !offscreenTextures.isEmpty else {
-            inFlightSemaphore.signal()
+        guard let offTex = latestFrame(),
+              let commandBuffer = commandQueue.makeCommandBuffer() else {
             return
-        }
-        let offTex = offscreenTextures[Int(offscreenPoolIndex % UInt64(offscreenTextures.count))]
-        offscreenPoolIndex &+= 1
-
-        guard let commandBuffer = commandQueue.makeCommandBuffer() else {
-            inFlightSemaphore.signal()
-            return
-        }
-        guard let quads = onFrame?(commandBuffer) else {
-            inFlightSemaphore.signal()
-            return
-        }
-
-        offscreenPassDescriptor.colorAttachments[0].texture = offTex
-
-        if let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: offscreenPassDescriptor) {
-            if !quads.isEmpty {
-                encoder.setRenderPipelineState(compositePipeline)
-                encodeQuads(quads, encoder: encoder)
-            }
-            encoder.endEncoding()
         }
 
         if let drawable = view.currentDrawable,
@@ -802,9 +830,44 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
             }
             commandBuffer.present(drawable)
         }
+        commandBuffer.commit()
+    }
 
-        // Signal once composite and preview have committed. encodeQueue waits on this
-        // value before reading offTex.
+    // Composites one frame and hands it to the recorder and encoders. Runs on the render
+    // thread, never on main, so UI work can't drop frames from the stream.
+    private func renderFrame(frameTime: CMTime) {
+        // Block until a slot frees up. Same pattern as Apple's Metal triple-buffering samples.
+        inFlightSemaphore.wait()
+
+        guard !offscreenTextures.isEmpty else {
+            inFlightSemaphore.signal()
+            return
+        }
+        let offTex = offscreenTextures[Int(offscreenPoolIndex % UInt64(offscreenTextures.count))]
+        offscreenPoolIndex &+= 1
+
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else {
+            inFlightSemaphore.signal()
+            return
+        }
+        guard let quads = onFrame?(commandBuffer) else {
+            inFlightSemaphore.signal()
+            return
+        }
+
+        offscreenPassDescriptor.colorAttachments[0].texture = offTex
+
+        if let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: offscreenPassDescriptor) {
+            if !quads.isEmpty {
+                encoder.setRenderPipelineState(compositePipeline)
+                encodeQuads(quads, encoder: encoder)
+            }
+            encoder.endEncoding()
+        }
+
+
+        // Signal once the composite has committed. encodeQueue waits on this value before
+        // reading offTex.
         hazardValue &+= 1
         let frameHazardValue = hazardValue
         commandBuffer.encodeSignalEvent(hazardEvent, value: frameHazardValue)
@@ -816,6 +879,7 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
             frameGroup.leave()
         }
         commandBuffer.commit()
+        setLatestFrame(offTex)
 
         let onOutput = (wantsFullResOutput?() ?? true) ? self.onOutput : nil
         if let onOutput, let recBuf = acquirePooledBuffer(from: recordingPool) {

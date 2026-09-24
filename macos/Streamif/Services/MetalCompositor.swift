@@ -15,20 +15,57 @@ final class MetalCompositor: @unchecked Sendable {
     private var extraScreenBuffers: [String: CVPixelBuffer] = [:]
     private let lock = NSLock()
 
+    // buildQuads runs on the render thread while the UI changes settings and clears
+    // caches on main. Held for all of buildQuads, and by every main-thread entry point
+    // that touches render state. Recursive, since buildQuads reads the locked settings.
+    private let renderLock = NSRecursiveLock()
+
     let backgroundBlur = BackgroundBlur()
 
-    var canvasConfig = CanvasConfig()
+    private var _canvasConfig: CanvasConfig = CanvasConfig()
+    var canvasConfig: CanvasConfig {
+        get { renderLock.withLock { _canvasConfig } }
+        set { renderLock.withLock { _canvasConfig = newValue } }
+    }
     private var cachedBackgroundTexture: MTLTexture?
     private var cachedBackgroundKey: String?
 
-    var skinSmoothingIntensity: Float = 0.5
+    private var _skinSmoothingIntensity: Float = 0.5
+    var skinSmoothingIntensity: Float {
+        get { renderLock.withLock { _skinSmoothingIntensity } }
+        set { renderLock.withLock { _skinSmoothingIntensity = newValue } }
+    }
 
-    var colorCorrectionEnabled = false
-    var colorBrightness: Float = 0.0
-    var colorContrast: Float = 1.0
-    var colorSaturation: Float = 1.0
-    var colorGamma: Float = 1.0
-    var colorTemperature: Float = 0.0
+    private var _colorCorrectionEnabled: Bool = false
+    var colorCorrectionEnabled: Bool {
+        get { renderLock.withLock { _colorCorrectionEnabled } }
+        set { renderLock.withLock { _colorCorrectionEnabled = newValue } }
+    }
+    private var _colorBrightness: Float = 0.0
+    var colorBrightness: Float {
+        get { renderLock.withLock { _colorBrightness } }
+        set { renderLock.withLock { _colorBrightness = newValue } }
+    }
+    private var _colorContrast: Float = 1.0
+    var colorContrast: Float {
+        get { renderLock.withLock { _colorContrast } }
+        set { renderLock.withLock { _colorContrast = newValue } }
+    }
+    private var _colorSaturation: Float = 1.0
+    var colorSaturation: Float {
+        get { renderLock.withLock { _colorSaturation } }
+        set { renderLock.withLock { _colorSaturation = newValue } }
+    }
+    private var _colorGamma: Float = 1.0
+    var colorGamma: Float {
+        get { renderLock.withLock { _colorGamma } }
+        set { renderLock.withLock { _colorGamma = newValue } }
+    }
+    private var _colorTemperature: Float = 0.0
+    var colorTemperature: Float {
+        get { renderLock.withLock { _colorTemperature } }
+        set { renderLock.withLock { _colorTemperature = newValue } }
+    }
 
     private var cachedOverlayTextures: [UUID: (texture: MTLTexture, contentHash: Int)] = [:]
     private var _overlays: [StreamOverlay] = []
@@ -36,9 +73,10 @@ final class MetalCompositor: @unchecked Sendable {
 
     private var overlayAppearedAt: [UUID: Date] = [:]
 
-    nonisolated(unsafe) var captionTextProvider: (() -> String)?
-    private var captionText: String {
-        captionTextProvider?() ?? ""
+    private var _captionText = ""
+    var captionText: String {
+        get { renderLock.withLock { _captionText } }
+        set { renderLock.withLock { _captionText = newValue } }
     }
 
     private var _chatMessages: [YouTubeChatMessage] = []
@@ -357,6 +395,9 @@ final class MetalCompositor: @unchecked Sendable {
         commandBuffer: MTLCommandBuffer,
         screenBlurred: Bool = false
     ) -> [RenderQuad] {
+        renderLock.lock()
+        defer { renderLock.unlock() }
+
         lock.lock()
         let cameraPB = latestCameraBuffer
         let screenPB = latestScreenBuffer
@@ -1124,6 +1165,8 @@ final class MetalCompositor: @unchecked Sendable {
     }
 
     func clearSourceCache(for id: UUID) {
+        renderLock.lock()
+        defer { renderLock.unlock() }
         cachedSourceTextures.removeValue(forKey: id)
         sourceRectLock.lock()
         _renderedSourceRects.removeValue(forKey: id)
@@ -1137,6 +1180,8 @@ final class MetalCompositor: @unchecked Sendable {
     }
 
     func clearOverlayCache(for id: UUID) {
+        renderLock.lock()
+        defer { renderLock.unlock() }
         cachedOverlayTextures.removeValue(forKey: id)
         overlayAppearedAt.removeValue(forKey: id)
         rectLock.lock()
@@ -1162,7 +1207,9 @@ final class MetalCompositor: @unchecked Sendable {
     }
 
     func replayOverlayAnimation(for id: UUID) {
-        overlayAppearedAt.removeValue(forKey: id)
+        renderLock.withLock {
+            _ = overlayAppearedAt.removeValue(forKey: id)
+        }
     }
 
     // MARK: - Coordinate Helpers
@@ -1480,6 +1527,8 @@ final class MetalCompositor: @unchecked Sendable {
     // MARK: - Canvas Background
 
     func clearBackgroundCache() {
+        renderLock.lock()
+        defer { renderLock.unlock() }
         cachedBackgroundTexture = nil
         cachedBackgroundKey = nil
     }

@@ -244,7 +244,9 @@ final class MediaPipeline {
     func start() async {
         canvasConfig = Persistence.loadCanvasConfig()
         metalCompositor.canvasConfig = canvasConfig
-        metalCompositor.captionTextProvider = { [weak self] in self?.captionService.currentText ?? "" }
+        captionService.onTextChanged = { [weak self] text in
+            self?.metalCompositor.captionText = text
+        }
         wireAudioBusSubscribers()
         overlays = Persistence.loadOverlays()
         syncOverlays()

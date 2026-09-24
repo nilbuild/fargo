@@ -10,7 +10,12 @@ final class CaptionService {
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
 
-    var currentText: String = ""
+    var currentText: String = "" {
+        didSet {
+            onTextChanged?(currentText)
+        }
+    }
+    var onTextChanged: ((String) -> Void)?
     var isRunning: Bool = false
     var errorMessage: String?
 
