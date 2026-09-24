@@ -6,6 +6,25 @@
     <description>Most recent Streamif updates.</description>
     <language>en</language>
     <item>
+      <title>Version 0.1.8</title>
+      <pubDate>Thu, 24 Sep 2026 10:50:45 +0000</pubDate>
+      <sparkle:version>11</sparkle:version>
+      <sparkle:shortVersionString>0.1.8</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h3>What&#x27;s changed</h3>
+<ul>
+<li>Bump version to 0.1.8 (a885e30)</li>
+<li>Add floating chat pop-out with screen share toggle (9a630c5)</li>
+<li>Add v0.1.7 to the appcast [skip actions] (d2f9186)</li>
+</ul>
+<h3>Install</h3>
+<p>Download <code>Streamif-0.1.8-universal.dmg</code>, drag Streamif to Applications, and launch it.</p>
+<p>The build is a universal binary, signed with a Developer ID certificate and notarized by Apple.</p>
+<p>Requires macOS 14.0 or later. Existing installs update themselves through Sparkle.</p>
+<p><strong>Full changelog</strong>: https://github.com/nilbuild/streamif/compare/v0.1.7...v0.1.8</p>]]></description>
+      <enclosure url="https://github.com/nilbuild/streamif/releases/download/v0.1.8/Streamif-0.1.8-universal.zip" length="20357056" type="application/octet-stream" sparkle:edSignature="o8M71MgkBynlxE3hG6Hkm0PSOMxHRfnexN8bONgE6ZT/fkbdFYQXt8JM4xwIzPftnYQaW82OAzKkHPKw3np+Dw=="/>
+    </item>
+    <item>
       <title>Version 0.1.7</title>
       <pubDate>Thu, 24 Sep 2026 09:20:46 +0000</pubDate>
       <sparkle:version>10</sparkle:version>
