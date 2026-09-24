@@ -618,10 +618,12 @@ struct AudioMeter: View {
 }
 
 struct DevicePicker: View {
-    let icon: String; let items: [(String, String)]; @Binding var selection: String
+    var icon: String? = nil; let items: [(String, String)]; @Binding var selection: String
     var body: some View {
         HStack(spacing: 5) {
-            Image(systemName: icon).font(.system(size: 10)).foregroundStyle(.white.opacity(0.3))
+            if let icon {
+                Image(systemName: icon).font(.system(size: 10)).foregroundStyle(.white.opacity(0.3))
+            }
             Picker("", selection: $selection) {
                 ForEach(items, id: \.0) { Text($0.1).tag($0.0) }
             }.labelsHidden().frame(maxWidth: .infinity)

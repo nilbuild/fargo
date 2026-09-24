@@ -131,6 +131,14 @@ final class DestinationStore {
         save()
     }
 
+    func update(_ destination: StreamDestination) {
+        guard let idx = destinations.firstIndex(where: { $0.id == destination.id }) else {
+            return
+        }
+        destinations[idx] = destination
+        save()
+    }
+
     func toggle(_ id: UUID) {
         if let idx = destinations.firstIndex(where: { $0.id == id }) {
             destinations[idx].enabled.toggle()

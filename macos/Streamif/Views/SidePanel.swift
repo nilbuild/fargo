@@ -1994,7 +1994,6 @@ struct BuiltInSourceCard: View {
             switch source.type {
             case .camera:
                 DevicePicker(
-                    icon: "camera",
                     items: pipeline.cameras.map { ($0.id, $0.name) },
                     selection: Binding(
                         get: { pipeline.selectedCameraId },
@@ -2311,6 +2310,7 @@ struct DestinationCard: View {
     @State private var isTesting = false
     @State private var health: RTMPClient.StreamHealth?
     @State private var healthTimer: Timer?
+    @State private var showSettings = false
 
     /// Warns once the measured rate sits well under target for long enough that
     /// it is not just the encoder ramping up.
@@ -2386,12 +2386,34 @@ struct DestinationCard: View {
                         }
                     }
                     .buttonStyle(.plain).help("Test connection")
+                }
 
+                Button { showSettings.toggle() } label: {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 10))
+                        .foregroundStyle(showSettings ? .blue : .white.opacity(0.25))
+                }
+                .buttonStyle(.plain).help("Settings")
+
+                if !pipeline.streamStatus.isLive {
                     Button { store.remove(destination.id) } label: {
                         Image(systemName: "trash").font(.system(size: 10)).foregroundStyle(.white.opacity(0.2))
                     }.buttonStyle(.plain)
                 }
             }.padding(10)
+
+            if showSettings {
+                DestinationSettingsForm(
+                    destination: destination,
+                    isLocked: pipeline.streamStatus.isLive,
+                    onSave: { updated in
+                        store.update(updated)
+                        showSettings = false
+                    },
+                    onCancel: { showSettings = false }
+                )
+                .padding(.horizontal, 10).padding(.bottom, 10)
+            }
 
             if let result = testResult {
                 Text(result.message)
@@ -2418,6 +2440,17 @@ struct DestinationCard: View {
         }
         .background(.white.opacity(0.03))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .contextMenu {
+            Button { showSettings.toggle() } label: {
+                Label(showSettings ? "Hide Settings" : "Settings", systemImage: "gearshape")
+            }
+            if !pipeline.streamStatus.isLive {
+                Divider()
+                Button(role: .destructive) { store.remove(destination.id) } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+        }
         .onAppear { startHealthPolling() }
         .onDisappear { healthTimer?.invalidate() }
         .onChange(of: pipeline.streamStatus.isLive) { _, isLive in
@@ -2546,6 +2579,199 @@ struct HealthStat: View {
                 .font(.system(size: 7))
                 .foregroundStyle(.white.opacity(0.2))
         }
+    }
+}
+
+// MARK: - Destination Settings
+
+struct DestinationSettingsForm: View {
+    let destination: StreamDestination
+    let isLocked: Bool
+    var onSave: (StreamDestination) -> Void
+    var onCancel: () -> Void
+
+    @State private var name = ""
+    @State private var rtmpUrl = ""
+    @State private var streamKey = ""
+    @State private var showKey = false
+    @State private var selectedQualityId: String?
+
+    private var preset: PlatformPreset? {
+        PlatformPreset.presets.first { $0.id == destination.platformId }
+    }
+
+    private var qualityOptions: [StreamQuality] {
+        guard let preset else {
+            return StreamQuality.all
+        }
+        return StreamQuality.options(for: preset)
+    }
+
+    private var chosenQuality: StreamQuality? {
+        qualityOptions.first { $0.id == selectedQualityId }
+    }
+
+    private var trimmedKey: String {
+        streamKey.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var hasChanges: Bool {
+        if name != destination.name || rtmpUrl != destination.rtmpUrl || trimmedKey != destination.streamKey {
+            return true
+        }
+        guard let chosen = chosenQuality else {
+            return false
+        }
+        return chosen.width != destination.videoWidth
+            || chosen.height != destination.videoHeight
+            || chosen.fps != destination.fps
+            || chosen.videoBitrate != destination.videoBitrate
+    }
+
+    private var canSave: Bool {
+        !isLocked && hasChanges && !trimmedKey.isEmpty && !rtmpUrl.isEmpty
+            && !name.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Divider().opacity(0.1)
+
+            field("NAME") {
+                SidebarTextField(text: $name, placeholder: "Name")
+            }
+
+            field("RTMP URL") {
+                SidebarTextField(text: $rtmpUrl, placeholder: "rtmp://...")
+            }
+
+            field("STREAM KEY") {
+                HStack(spacing: 6) {
+                    Group {
+                        if showKey {
+                            TextField("Stream key", text: $streamKey)
+                        } else {
+                            SecureField("Stream key", text: $streamKey)
+                        }
+                    }
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 11))
+                    .focusEffectDisabled()
+
+                    Button { showKey.toggle() } label: {
+                        Image(systemName: showKey ? "eye.slash" : "eye")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.white.opacity(0.4))
+                    }
+                    .buttonStyle(.plain)
+                    .help(showKey ? "Hide key" : "Show key")
+                }
+                .padding(.horizontal, 10)
+                .frame(height: 30)
+                .background(.white.opacity(0.06))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(.white.opacity(0.06), lineWidth: 1))
+            }
+
+            field("QUALITY") {
+                HStack(spacing: 4) {
+                    ForEach(qualityOptions) { option in
+                        let isChosen = option.id == selectedQualityId
+                        Button { selectedQualityId = option.id } label: {
+                            Text(option.label)
+                                .font(.system(size: 9, weight: .medium))
+                                .lineLimit(1)
+                                .fixedSize()
+                                .padding(.horizontal, 7).padding(.vertical, 4)
+                                .background(isChosen ? Color.blue.opacity(0.25) : .white.opacity(0.05))
+                                .foregroundStyle(isChosen ? .blue : .white.opacity(0.5))
+                                .clipShape(RoundedRectangle(cornerRadius: 5))
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                let width = chosenQuality?.width ?? destination.videoWidth
+                let height = chosenQuality?.height ?? destination.videoHeight
+                let bitrate = chosenQuality?.videoBitrate ?? destination.videoBitrate
+                let fps = chosenQuality?.fps ?? destination.fps
+                Text(verbatim: "\(width)x\(height) · \(bitrate / 1000) kbps · \(fps) fps · audio \(destination.audioBitrate / 1000) kbps")
+                    .font(.system(size: 9, design: .monospaced))
+                    .foregroundStyle(.white.opacity(0.35))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
+
+            if isLocked {
+                Text("Stop the stream to change these settings.")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.white.opacity(0.35))
+            }
+
+            HStack(spacing: 8) {
+                Button { onCancel() } label: {
+                    Text(isLocked ? "Close" : "Cancel")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.6))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 28)
+                        .background(.white.opacity(0.05))
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .contentShape(Rectangle())
+                }.buttonStyle(.plain)
+
+                if !isLocked {
+                    Button { save() } label: {
+                        Text("Save")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(canSave ? .white : .white.opacity(0.35))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 28)
+                            .background(canSave ? Color.blue : .white.opacity(0.05))
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!canSave)
+                }
+            }
+        }
+        .onAppear { load() }
+    }
+
+    private func field<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            CardSectionLabel(title: title)
+            content()
+                .disabled(isLocked)
+        }
+    }
+
+    private func load() {
+        name = destination.name
+        rtmpUrl = destination.rtmpUrl
+        streamKey = destination.streamKey
+        selectedQualityId = qualityOptions.first {
+            $0.width == destination.videoWidth && $0.height == destination.videoHeight && $0.fps == destination.fps
+        }?.id
+    }
+
+    private func save() {
+        guard canSave else {
+            return
+        }
+        var updated = destination
+        updated.name = name.trimmingCharacters(in: .whitespaces)
+        updated.rtmpUrl = rtmpUrl.trimmingCharacters(in: .whitespacesAndNewlines)
+        updated.streamKey = trimmedKey
+        if let chosen = chosenQuality {
+            updated.videoWidth = chosen.width
+            updated.videoHeight = chosen.height
+            updated.fps = chosen.fps
+            updated.videoBitrate = chosen.videoBitrate
+        }
+        onSave(updated)
     }
 }
 
