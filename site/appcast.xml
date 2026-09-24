@@ -6,6 +6,30 @@
     <description>Most recent Streamif updates.</description>
     <language>en</language>
     <item>
+      <title>Version 0.1.6</title>
+      <pubDate>Thu, 24 Sep 2026 08:54:55 +0000</pubDate>
+      <sparkle:version>9</sparkle:version>
+      <sparkle:shortVersionString>0.1.6</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h3>What&#x27;s changed</h3>
+<ul>
+<li>Bump version to 0.1.6 (abe5b0d)</li>
+<li>Render the stream on its own thread (c85b7c5)</li>
+<li>Keep the audio timeline locked to the video clock (8ebbd63)</li>
+<li>Encode streams at a constant bitrate (88a6b56)</li>
+<li>Stream to YouTube at its recommended bitrates (8f7389b)</li>
+<li>Add Google user data disclosures to privacy policy (0f9a2e3)</li>
+<li>Fix stream stalls and unplayable recordings, and let Go Live skip recording (95276e7)</li>
+<li>Add v0.1.5 to the appcast [skip actions] (9b4331f)</li>
+</ul>
+<h3>Install</h3>
+<p>Download <code>Streamif-0.1.6-universal.dmg</code>, drag Streamif to Applications, and launch it.</p>
+<p>The build is a universal binary, signed with a Developer ID certificate and notarized by Apple.</p>
+<p>Requires macOS 14.0 or later. Existing installs update themselves through Sparkle.</p>
+<p><strong>Full changelog</strong>: https://github.com/nilbuild/streamif/compare/v0.1.5...v0.1.6</p>]]></description>
+      <enclosure url="https://github.com/nilbuild/streamif/releases/download/v0.1.6/Streamif-0.1.6-universal.zip" length="20292663" type="application/octet-stream" sparkle:edSignature="3IhuqxZvjMQupTzLQbyxLaTt1qGNe2UZPXnZBEsnzFXhcsznqwxxfwbcY8Up9Q6nTHwJ2Klz5e4tx3Ibw8T/Bg=="/>
+    </item>
+    <item>
       <title>Version 0.1.5</title>
       <pubDate>Wed, 23 Sep 2026 20:35:06 +0000</pubDate>
       <sparkle:version>8</sparkle:version>
