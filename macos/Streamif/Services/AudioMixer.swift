@@ -64,6 +64,19 @@ final class AudioMixer {
 
     private let mixQueue = DispatchQueue(label: "com.streamif.audiomixer", qos: .userInteractive)
 
+    // The output timeline is counted in samples, while video runs on the host clock.
+    // The clock keeps the two together: it fills silence when no source is delivering
+    // (mic muted, system audio off), so audio doesn't fall behind by the length of
+    // the pause, and it nudges each block by a sample when a device clock drifts.
+    private var clockTimer: DispatchSourceTimer?
+    private let clockStart = CFAbsoluteTimeGetCurrent()
+    private let idleTimeout: CFAbsoluteTime = 0.1
+    private var driftBaseline: Double?
+    private var driftCalibration: [Double] = []
+    private var driftSmoothed: Double?
+    private let driftTolerance: Double = 480
+    private let maxDriftFramesPerBlock = 3
+
     init() {
         self.outputFormat = AVAudioFormat(
             commonFormat: .pcmFormatFloat32,
@@ -71,6 +84,11 @@ final class AudioMixer {
             channels: AVAudioChannelCount(channels),
             interleaved: true
         )!
+        startClock()
+    }
+
+    deinit {
+        clockTimer?.cancel()
     }
 
     // MARK: - Input
@@ -189,10 +207,115 @@ final class AudioMixer {
         var maxVal: Float = 1.0
         vDSP_vclip(mixed, 1, &minVal, &maxVal, &mixed, 1, vDSP_Length(mixCount))
 
-        let frameCount = mixCount / channels
+        var frameCount = mixCount / channels
+        let adjustment = driftAdjustment()
+        if adjustment != 0 && frameCount > 1 {
+            mixed = stretch(mixed, frames: frameCount, to: frameCount + adjustment)
+            frameCount += adjustment
+        }
+
         if let sb = makeSampleBuffer(from: mixed, frameCount: frameCount) {
             onMixedAudio?(sb)
         }
+    }
+
+    // MARK: - Clock
+
+    private func startClock() {
+        let timer = DispatchSource.makeTimerSource(queue: mixQueue)
+        timer.schedule(deadline: .now() + 0.01, repeating: .milliseconds(10), leeway: .milliseconds(2))
+        timer.setEventHandler { [weak self] in
+            self?.tick()
+        }
+        timer.resume()
+        clockTimer = timer
+    }
+
+    private func tick() {
+        tryMix()
+
+        let now = CFAbsoluteTimeGetCurrent()
+        lock.lock()
+        let micIdle = lastMicTime == 0 || now - lastMicTime > idleTimeout
+        let systemIdle = lastSystemTime == 0 || now - lastSystemTime > idleTimeout
+        lock.unlock()
+        guard micIdle && systemIdle else {
+            return
+        }
+
+        if !baseTime.isValid {
+            guard now - clockStart > 0.5 else {
+                return
+            }
+            baseTime = CMClockGetTime(CMClockGetHostTimeClock())
+        }
+
+        guard let behind = framesBehind() else {
+            return
+        }
+        let gap = Int(behind - (driftBaseline ?? 1024))
+        let frames = min(gap, Int(sampleRate * 0.1)) / 1024 * 1024
+        guard frames > 0 else {
+            return
+        }
+
+        driftSmoothed = nil
+        let silence = [Float](repeating: 0, count: frames * channels)
+        if let sb = makeSampleBuffer(from: silence, frameCount: frames) {
+            onMixedAudio?(sb)
+        }
+    }
+
+    /// How far the output timeline trails the host clock, in frames. Includes the fixed
+    /// capture and buffering latency, which the calibrated baseline takes out.
+    private func framesBehind() -> Double? {
+        guard baseTime.isValid else {
+            return nil
+        }
+        let elapsed = CMTimeGetSeconds(CMTimeSubtract(CMClockGetTime(CMClockGetHostTimeClock()), baseTime))
+        return elapsed * sampleRate - Double(outputSampleCount)
+    }
+
+    /// Frames to stretch (positive) or shrink (negative) this block by, to pull output
+    /// back to real time. Up to 3 frames per ~21 ms block corrects 0.3%, well beyond
+    /// real device clock drift, and a change that small is inaudible.
+    private func driftAdjustment() -> Int {
+        guard let behind = framesBehind() else {
+            return 0
+        }
+        let smoothed = driftSmoothed.map { $0 * 0.98 + behind * 0.02 } ?? behind
+        driftSmoothed = smoothed
+
+        guard let baseline = driftBaseline else {
+            driftCalibration.append(behind)
+            if driftCalibration.count >= 100 {
+                driftBaseline = driftCalibration.reduce(0, +) / Double(driftCalibration.count)
+                driftSmoothed = driftBaseline
+            }
+            return 0
+        }
+
+        let error = smoothed - baseline
+        guard abs(error) > driftTolerance else {
+            return 0
+        }
+        let frames = min(maxDriftFramesPerBlock, Int(abs(error) / driftTolerance))
+        return error > 0 ? frames : -frames
+    }
+
+    private func stretch(_ samples: [Float], frames: Int, to newFrames: Int) -> [Float] {
+        var out = [Float](repeating: 0, count: newFrames * channels)
+        let scale = Double(frames - 1) / Double(newFrames - 1)
+        for i in 0..<newFrames {
+            let pos = Double(i) * scale
+            let i0 = Int(pos)
+            let i1 = min(i0 + 1, frames - 1)
+            let t = Float(pos - Double(i0))
+            for ch in 0..<channels {
+                out[i * channels + ch] = samples[i0 * channels + ch] * (1 - t) + samples[i1 * channels + ch] * t
+            }
+        }
+        return out
     }
 
     private func trimBacklog(_ buffer: inout [Float]) {
