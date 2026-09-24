@@ -1135,7 +1135,18 @@ struct ChatTab: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
-                    TabSectionHeader(title: "LIVE CHAT")
+                    TabSectionHeader(title: "LIVE CHAT") {
+                        Button { ChatPopout.shared.toggle(pipeline: pipeline) } label: {
+                            Image(systemName: ChatPopout.shared.isOpen
+                                  ? "rectangle.on.rectangle.slash" : "rectangle.portrait.on.rectangle.portrait")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundStyle(ChatPopout.shared.isOpen ? .blue : .white.opacity(0.5))
+                                .frame(width: 24, height: 24)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .help(ChatPopout.shared.isOpen ? "Close chat pop-out" : "Pop out chat")
+                    }
 
                     ChatSourceCard(
                         icon: "play.rectangle.fill",

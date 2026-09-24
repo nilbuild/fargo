@@ -32,6 +32,7 @@
 		A10000010000000000000048 /* StreamOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000048; };
 		A10000010000000000000049 /* StreamManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000049; };
 		A10000010000000000000050 /* StreamStatsOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000050; };
+		A1C0FFEE0000000000000001 /* ChatPopout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C0FFEE0000000000000001; };
 		A10000010000000000000051 /* LocalRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000051; };
 		A10000010000000000000052 /* AudioMixer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000052; };
 		A10000010000000000000060 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000060; };
@@ -101,6 +102,7 @@
 		A20000010000000000000048 /* StreamOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamOutput.swift; sourceTree = "<group>"; };
 		A20000010000000000000049 /* StreamManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamManager.swift; sourceTree = "<group>"; };
 		A20000010000000000000050 /* StreamStatsOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamStatsOverlay.swift; sourceTree = "<group>"; };
+		A2C0FFEE0000000000000001 /* ChatPopout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPopout.swift; sourceTree = "<group>"; };
 		A20000010000000000000051 /* LocalRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalRecorder.swift; sourceTree = "<group>"; };
 		A20000010000000000000052 /* AudioMixer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMixer.swift; sourceTree = "<group>"; };
 		A20000010000000000000060 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
@@ -222,6 +224,7 @@
 				A20000010000000000000022 /* OverlaysView.swift */,
 				A20000010000000000000033 /* MetalPreviewView.swift */,
 				A20000010000000000000050 /* StreamStatsOverlay.swift */,
+				A2C0FFEE0000000000000001 /* ChatPopout.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -425,6 +428,7 @@
 				A10000010000000000000048 /* StreamOutput.swift in Sources */,
 				A10000010000000000000049 /* StreamManager.swift in Sources */,
 				A10000010000000000000050 /* StreamStatsOverlay.swift in Sources */,
+				A1C0FFEE0000000000000001 /* ChatPopout.swift in Sources */,
 				A10000010000000000000051 /* LocalRecorder.swift in Sources */,
 				A10000010000000000000052 /* AudioMixer.swift in Sources */,
 				A10000010000000000000060 /* AppSettings.swift in Sources */,

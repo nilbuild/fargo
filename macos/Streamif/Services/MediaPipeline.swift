@@ -1202,11 +1202,7 @@ final class MediaPipeline {
 
         if spec.hasPrefix("d:"), let displayId = UInt32(spec.dropFirst(2)) {
             guard let display = displays.first(where: { $0.displayID == displayId }) else { return }
-            let myBundleId = Bundle.main.bundleIdentifier
-            let selfWindows = (try? await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true))?.windows.filter {
-                $0.owningApplication?.bundleIdentifier == myBundleId
-            } ?? []
-            filter = SCContentFilter(display: display, excludingWindows: selfWindows)
+            filter = SCContentFilter(display: display, excludingWindows: await selfWindowsToExclude())
             let (pixelW, pixelH) = pixelDimensions(forDisplayID: displayId,
                                                    fallbackW: display.width,
                                                    fallbackH: display.height)
@@ -1251,6 +1247,34 @@ final class MediaPipeline {
             extraScreenOutputs[spec] = output
         } catch {
             print("[Streamif] Extra screen capture error for \(spec): \(error)")
+        }
+    }
+
+    /// Our own windows, which display captures leave out so the app doesn't film itself.
+    /// The chat pop-out is left in when the user has chosen to show it on stream.
+    private func selfWindowsToExclude() async -> [SCWindow] {
+        let myBundleId = Bundle.main.bundleIdentifier
+        let visibleChatWindow = ChatPopout.shared.showInScreenShare ? ChatPopout.shared.windowNumber : nil
+        return (try? await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true))?.windows.filter {
+            $0.owningApplication?.bundleIdentifier == myBundleId
+                && visibleChatWindow != Int($0.windowID)
+        } ?? []
+    }
+
+    /// Recomputes the excluded windows on running display captures, e.g. after the chat
+    /// pop-out opens or its screen-share toggle flips.
+    func refreshScreenCaptureExclusions() async {
+        let excluded = await selfWindowsToExclude()
+        var targets: [(SCStream, CGDirectDisplayID)] = []
+        if let screenStream, case .display(let id) = selectedScreenSource {
+            targets.append((screenStream, id))
+        }
+        for (spec, stream) in extraScreenStreams where spec.hasPrefix("d:") {
+            if let id = UInt32(spec.dropFirst(2)) { targets.append((stream, id)) }
+        }
+        for (stream, id) in targets {
+            guard let display = displays.first(where: { $0.displayID == id }) else { continue }
+            try? await stream.updateContentFilter(SCContentFilter(display: display, excludingWindows: excluded))
         }
     }
 
@@ -1609,11 +1633,7 @@ final class MediaPipeline {
         switch selectedScreenSource {
         case .display(let displayId):
             guard let display = displays.first(where: { $0.displayID == displayId }) else { return }
-            let myBundleId = Bundle.main.bundleIdentifier
-            let selfWindows = (try? await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true))?.windows.filter {
-                $0.owningApplication?.bundleIdentifier == myBundleId
-            } ?? []
-            filter = SCContentFilter(display: display, excludingWindows: selfWindows)
+            filter = SCContentFilter(display: display, excludingWindows: await selfWindowsToExclude())
             let (pixelW, pixelH) = pixelDimensions(forDisplayID: displayId,
                                                    fallbackW: display.width,
                                                    fallbackH: display.height)
