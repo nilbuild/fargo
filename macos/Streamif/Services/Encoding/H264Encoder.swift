@@ -19,6 +19,7 @@ final class H264Encoder {
     private var lastEncodedTime: CMTime = .invalid
     private let minFrameInterval: Double
     private var forceNextKeyframe = false
+    private var usesConstantBitRate = false
 
     private let encodingQueue = DispatchQueue(label: "com.streamif.h264encoder", qos: .userInitiated)
 
@@ -87,11 +88,15 @@ final class H264Encoder {
 
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_ProfileLevel, value: profileLevel)
 
-        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_AverageBitRate, value: bitrate as CFNumber)
-        let byteLimit = Double(bitrate) / 8.0 * 2.5 // allow 2.5x burst for complex scenes
-        let secondLimit = 1.0
-        let limits = [byteLimit, secondLimit] as CFArray
-        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_DataRateLimits, value: limits)
+        // Platforms ask for CBR: a steady rate keeps ingest buffers from underrunning on
+        // static scenes and spiking on scene changes. Apple Silicon supports it; other
+        // encoders refuse the key and get an average rate with a burst cap.
+        usesConstantBitRate = VTSessionSetProperty(
+            session, key: kVTCompressionPropertyKey_ConstantBitRate, value: bitrate as CFNumber
+        ) == noErr
+        if !usesConstantBitRate {
+            applyAverageBitRate(bitrate)
+        }
 
         VTSessionSetProperty(session, key: kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration,
                              value: keyframeInterval as CFNumber)
@@ -205,10 +210,18 @@ final class H264Encoder {
     func updateBitrate(_ newBitrate: Int) {
         guard let session else { return }
         bitrate = newBitrate
-        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_AverageBitRate, value: newBitrate as CFNumber)
-        let byteLimit = Double(newBitrate) / 8.0 * 2.5
-        let limits = [byteLimit, 1.0] as CFArray
-        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_DataRateLimits, value: limits)
+        if usesConstantBitRate {
+            VTSessionSetProperty(session, key: kVTCompressionPropertyKey_ConstantBitRate, value: newBitrate as CFNumber)
+            return
+        }
+        applyAverageBitRate(newBitrate)
+    }
+
+    private func applyAverageBitRate(_ rate: Int) {
+        guard let session else { return }
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_AverageBitRate, value: rate as CFNumber)
+        let byteLimit = Double(rate) / 8.0 * 2.5
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_DataRateLimits, value: [byteLimit, 1.0] as CFArray)
     }
 
     func forceKeyframe() {
