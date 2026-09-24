@@ -128,7 +128,7 @@
     </header>
 
     <h1>Privacy Policy</h1>
-    <p class="updated">Last updated 22 September 2026</p>
+    <p class="updated">Last updated 24 September 2026</p>
 
     <p class="lead">
       Streamif runs entirely on your Mac. It has no servers, no accounts and no
@@ -155,39 +155,72 @@
     <h2>Signing in to YouTube or Twitch</h2>
     <p>
       Signing in is optional. It is only used to show live chat inside the app.
-      Everything else in Streamif works without it.
+      Everything else in Streamif works without it. Streamif requests read-only
+      access to YouTube (the <code>youtube.readonly</code> scope) and, for
+      Twitch, permission to read chat and your username.
     </p>
-    <p>If you do sign in:</p>
+
+    <h2>Google user data we access</h2>
+    <p>If you sign in with Google, Streamif accesses only:</p>
     <ul>
-      <li>
-        Streamif uses your YouTube permission only to find your current live
-        broadcast and read its chat messages. It does not post, edit or delete
-        anything on your channel.
-      </li>
-      <li>
-        Streamif uses your Twitch permission only to read chat for your channel and
-        to read your username.
-      </li>
-      <li>
-        The sign-in tokens are stored in the macOS Keychain on your own Mac.
-        They are never sent anywhere except to Google or Twitch when Streamif asks
-        them for chat messages.
-      </li>
-      <li>
-        Chat messages are held in memory while the app is open so they can be
-        shown on screen. They are not written to disk and not sent anywhere.
-      </li>
+      <li>Your YouTube channel name and profile picture, to show which account is signed in.</li>
+      <li>Your live and upcoming broadcasts, to find the broadcast you are currently streaming to.</li>
+      <li>The live chat messages of that broadcast, including the author name and picture of each message.</li>
+      <li>The OAuth access and refresh tokens Google issues, so you stay signed in.</li>
     </ul>
+
+    <h2>How we use Google user data</h2>
     <p>
-      You can sign out at any time from the sidebar. Signing out deletes the
-      stored tokens from your Keychain. You can also remove Streamif's access from
-      your
-      <a href="https://myaccount.google.com/permissions">Google account page</a>
-      or your
+      Google user data is used only to provide the live chat feature you can see
+      in the app: showing your signed-in channel, finding your current live
+      broadcast, and displaying its chat messages on your screen and, if you
+      choose, as an overlay in your own stream. It is not used for advertising,
+      profiling, analytics, selling, or any other purpose, and it is not used to
+      develop, improve or train generalized or non-personalized AI or machine
+      learning models. Streamif does not post, edit or delete anything on your
+      YouTube channel.
+    </p>
+
+    <h2>Sharing, transfer and disclosure of Google user data</h2>
+    <p>
+      We do not share, transfer, sell or disclose Google user data to anyone.
+      Streamif has no servers, so Google user data never reaches us or any third
+      party. The app talks directly from your Mac to Google's own servers
+      (<code>googleapis.com</code> and <code>accounts.google.com</code>) and
+      nowhere else. The only way chat content leaves your Mac is if you choose to
+      show the chat overlay in a stream you broadcast yourself.
+    </p>
+
+    <h2>How Google user data is protected</h2>
+    <ul>
+      <li>All requests to Google are made over encrypted HTTPS connections.</li>
+      <li>Sign-in uses Google's OAuth 2.0 flow with PKCE in the system browser. Streamif never sees your Google password.</li>
+      <li>OAuth tokens are stored in the macOS Keychain, which is encrypted and protected by your Mac's login.</li>
+      <li>Chat messages and channel details are kept only in the app's memory. They are never written to disk, logged, or sent to any server we operate.</li>
+      <li>Streamif requests the minimum, read-only scope needed for the chat feature.</li>
+    </ul>
+
+    <h2>Retention and deletion of Google user data</h2>
+    <ul>
+      <li>Chat messages and channel details are held in memory only while the app is running and are discarded when you quit Streamif or sign out.</li>
+      <li>OAuth tokens stay in your Keychain until you sign out. Signing out from the sidebar deletes them from the Keychain and revokes them with Google.</li>
+      <li>You can also remove Streamif's access at any time from your <a href="https://myaccount.google.com/permissions">Google account permissions page</a>. Deleting the app does not keep any Google data anywhere else.</li>
+      <li>Because we never receive or store your Google user data, there is nothing on our side to delete. If you have questions, contact us using the details below.</li>
+    </ul>
+
+    <h2>Twitch</h2>
+    <p>
+      Twitch sign-in works the same way: Streamif only reads chat for your channel
+      and your username, tokens are stored in the macOS Keychain, chat is kept in
+      memory only, and nothing is shared with anyone. Signing out deletes the
+      tokens, and you can remove access from your
       <a href="https://www.twitch.tv/settings/connections">Twitch connections page</a>.
     </p>
+
+    <h2>Limited Use</h2>
     <p>
-      Streamif's use of information received from Google APIs follows the
+      Streamif's use and transfer of information received from Google APIs
+      adheres to the
       <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>,
       including the Limited Use requirements.
     </p>
