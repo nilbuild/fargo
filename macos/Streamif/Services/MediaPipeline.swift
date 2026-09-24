@@ -47,7 +47,7 @@ final class MediaPipeline {
     }
 
     var isScreenCapturing = false
-    var isRecording: Bool { recorder.isRecording }
+    private(set) var isRecording = false
     var cameraError: String?
     var micError: String?
     var isCameraLoading = false
@@ -197,11 +197,8 @@ final class MediaPipeline {
         didSet {
             if systemAudioEnabled != oldValue {
                 Task {
-                    if systemAudioEnabled {
-                        await startSystemAudioCapture()
-                    } else {
-                        await stopSystemAudioCapture()
-                    }
+                    await stopSystemAudioCapture()
+                    await startSystemAudioCapture()
                 }
             }
         }
@@ -349,20 +346,25 @@ final class MediaPipeline {
             )
         }
 
-        renderer.onOutput = { [weak self] pixelBuffer in
+        renderer.wantsFullResOutput = { [weak self] in
+            guard let self else {
+                return false
+            }
+            return self.recorder.isRecording || self.streamManager.destinations.contains { $0.targetHeight > 1080 }
+        }
+
+        renderer.onOutput = { [weak self] pixelBuffer, time in
             guard let self else { return }
             self.latestFullResBuffer = pixelBuffer
             if self.recorder.isRecording {
-                let time = CMClockGetTime(CMClockGetHostTimeClock())
                 guard let sb = self.makeSampleBuffer(from: pixelBuffer, presentationTime: time) else { return }
                 self.recorder.writeVideo(sb)
             }
         }
 
-        renderer.onStreamingOutput = { [weak self] pixelBuffer in
+        renderer.onStreamingOutput = { [weak self] pixelBuffer, time in
             guard let self else { return }
             if self.streamManager.isLive || self.streamManager.isConnecting {
-                let time = CMClockGetTime(CMClockGetHostTimeClock())
                 if let fullRes = self.latestFullResBuffer {
                     self.streamManager.sendVideo(fullResBuffer: fullRes, streamingBuffer: pixelBuffer, presentationTime: time)
                 } else {
@@ -815,7 +817,10 @@ final class MediaPipeline {
         syncCanvasSources()
         Persistence.saveActiveCanvasId(activeCanvasId)
 
-        if canvasNeedsMedia(target) {
+        // switchToMediaPreset loads the media and then calls setCanvas, so reloading here
+        // when media is already loaded restarts the video forever and keeps pulling the
+        // canvas back to Media.
+        if canvasNeedsMedia(target) && mediaUrl == nil {
             activateMediaPresetForScene()
         }
 
@@ -1491,15 +1496,26 @@ final class MediaPipeline {
         guard systemAudioStream == nil else { return }
 
         do {
-            let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
+            let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)
             guard let display = content.displays.first else { return }
 
-            let filter = SCContentFilter(display: display, excludingWindows: [])
+            // Sound effects and media files play through the speakers, so they only
+            // reach the stream through this capture. With system audio off it still
+            // runs, limited to this app's own sound.
+            let filter: SCContentFilter
+            if systemAudioEnabled {
+                filter = SCContentFilter(display: display, excludingWindows: [])
+            } else {
+                guard let app = content.applications.first(where: { $0.bundleIdentifier == Bundle.main.bundleIdentifier }) else {
+                    return
+                }
+                filter = SCContentFilter(display: display, including: [app], exceptingWindows: [])
+            }
             let config = SCStreamConfiguration()
             config.width = 2
             config.height = 2
             config.capturesAudio = true
-            config.excludesCurrentProcessAudio = true
+            config.excludesCurrentProcessAudio = false
             config.channelCount = 2
             config.sampleRate = 48000
 
@@ -1715,7 +1731,7 @@ final class MediaPipeline {
 
     // MARK: - Streaming (Native RTMP)
 
-    func startStreaming(destinations: [StreamDestination]) {
+    func startStreaming(destinations: [StreamDestination], record: Bool = false) {
         let enabled = destinations.filter { $0.enabled }
         guard !enabled.isEmpty else { return }
         guard !streamStatus.isLive else { return }
@@ -1737,7 +1753,9 @@ final class MediaPipeline {
             streamManager.addDestination(client)
         }
 
-        startRecording()
+        if record {
+            startRecording()
+        }
     }
 
     func startStreaming(destination: StreamDestination) {
@@ -1753,8 +1771,15 @@ final class MediaPipeline {
 
     // MARK: - Local Recording
 
-    func startRecording() { recorder.start() }
-    func stopRecording() { recorder.stop() }
+    func startRecording() {
+        recorder.start()
+        isRecording = recorder.isRecording
+    }
+
+    func stopRecording(completion: (() -> Void)? = nil) {
+        recorder.stop(completion: completion)
+        isRecording = false
+    }
 
     // MARK: - Sample Buffer Creation
 

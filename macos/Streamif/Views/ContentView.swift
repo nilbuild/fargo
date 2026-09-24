@@ -125,11 +125,13 @@ struct ContentView: View {
             Task { await pipeline.toggleMute() }
             return .handled
         }
-        .onReceive(NotificationCenter.default.publisher(for: .goLive)) { _ in goLive() }
+        .onReceive(NotificationCenter.default.publisher(for: .goLive)) { note in
+            goLive(record: note.object as? Bool ?? false)
+        }
         .onReceive(NotificationCenter.default.publisher(for: .endStream)) { _ in endStream() }
     }
 
-    func goLive() {
+    func goLive(record: Bool) {
         let enabled = destinations.destinations.filter { $0.enabled }
         guard !enabled.isEmpty else { return }
         let countdown = AppSettings.shared.countdownSeconds
@@ -142,7 +144,7 @@ struct ContentView: View {
                 }
                 isCountingDown = false
             }
-            pipeline.startStreaming(destinations: enabled)
+            pipeline.startStreaming(destinations: enabled, record: record)
         }
     }
 
@@ -260,23 +262,64 @@ struct LayoutBar: View {
             .background(.blue.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 8))
         } else {
-            let hasEnabled = destinations.destinations.contains { $0.enabled }
+            GoLiveSplitButton(hasEnabled: destinations.destinations.contains { $0.enabled })
+        }
+    }
+}
+
+struct GoLiveSplitButton: View {
+    let hasEnabled: Bool
+
+    var body: some View {
+        HStack(spacing: 0) {
             Button {
-                NotificationCenter.default.post(name: .goLive, object: nil)
+                NotificationCenter.default.post(name: .goLive, object: false)
             } label: {
                 HStack(spacing: 5) {
                     Image(systemName: "play.fill").font(.system(size: 10))
                     Text("Go Live").font(.system(size: 12, weight: .bold))
                 }
-                .padding(.horizontal, 20).padding(.vertical, 7)
+                .padding(.leading, 20).padding(.trailing, 14).padding(.vertical, 7)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .foregroundStyle(.white)
-            .background(hasEnabled ? .blue : .blue.opacity(0.3))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .disabled(!hasEnabled)
+            .help("Go live without recording")
+
+            Rectangle()
+                .fill(.white.opacity(0.25))
+                .frame(width: 1, height: 16)
+
+            MenuAnchorView(menuBuilder: makeMenu) {
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 8, weight: .bold))
+                    .frame(width: 26, height: 30)
+                    .contentShape(Rectangle())
+            }
+            .frame(width: 26, height: 30)
+            .help("Go live and record a local copy")
         }
+        .foregroundStyle(.white)
+        .background(hasEnabled ? .blue : .blue.opacity(0.3))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .disabled(!hasEnabled)
+        .allowsHitTesting(hasEnabled)
+    }
+
+    private func makeMenu() -> NSMenu {
+        let menu = NSMenu()
+        menu.addItem(menuItem(title: "Go Live", record: false))
+        menu.addItem(menuItem(title: "Go Live & Record", record: true))
+        return menu
+    }
+
+    private func menuItem(title: String, record: Bool) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        item.representedObject = {
+            NotificationCenter.default.post(name: .goLive, object: record)
+        } as () -> Void
+        item.target = DropdownMenuDelegate.shared
+        item.action = #selector(DropdownMenuDelegate.menuItemClicked(_:))
+        return item
     }
 }
 

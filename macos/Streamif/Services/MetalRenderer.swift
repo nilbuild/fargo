@@ -112,7 +112,7 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
     private var blurResultTexture: MTLTexture?
     private var blurOutputTexture: MTLTexture?
 
-    private var screenBlurHalfTexture: MTLTexture?
+    private var screenBlurChain: [MTLTexture] = []
     private var screenBlurTempTexture: MTLTexture?
     private var screenBlurResultTexture: MTLTexture?
 
@@ -148,8 +148,13 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
     private var streamingTexture: MTLTexture?
 
     var onFrame: ((MTLCommandBuffer) -> [RenderQuad])?
-    var onOutput: ((CVPixelBuffer) -> Void)?
-    var onStreamingOutput: ((CVPixelBuffer) -> Void)?
+    // Called with the frame's draw-start time. Stamping at GPU completion instead jitters
+    // by a few ms, which shows as uneven motion and uneven 30fps frame picks.
+    var onOutput: ((CVPixelBuffer, CMTime) -> Void)?
+    // The 4K copy is only needed for recording or a destination above 1080p. Skipping it
+    // otherwise saves a full 4K blit per frame.
+    var wantsFullResOutput: (() -> Bool)?
+    var onStreamingOutput: ((CVPixelBuffer, CMTime) -> Void)?
     var onBeforeDraw: (() -> Void)?
 
     var selectionBorderFrame: SIMD4<Float>?
@@ -516,52 +521,56 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
         return output
     }
 
+    // Privacy blur. At this strength no detail survives, so it runs on a 1/8 scale copy
+    // (three 2x box downsamples) and linear sampling scales it back up. Blurring at half
+    // scale cost ~160 taps per pixel over a 1080p texture, twice, every frame.
     func blurTexture(
         _ texture: MTLTexture,
         radius: Float,
         commandBuffer: MTLCommandBuffer
     ) -> MTLTexture? {
-        let fullW = texture.width
-        let fullH = texture.height
-        let halfW = fullW / 2
-        let halfH = fullH / 2
+        let levels = 3
+        let scale = Float(1 << levels)
+        let smallW = max(1, texture.width >> levels)
+        let smallH = max(1, texture.height >> levels)
 
-        if screenBlurHalfTexture == nil || screenBlurHalfTexture!.width != halfW || screenBlurHalfTexture!.height != halfH {
-            let halfDesc = MTLTextureDescriptor.texture2DDescriptor(
-                pixelFormat: .bgra8Unorm, width: halfW, height: halfH, mipmapped: false
-            )
-            halfDesc.usage = [.shaderRead, .shaderWrite]
-            halfDesc.storageMode = .private
-            screenBlurHalfTexture = device.makeTexture(descriptor: halfDesc)
-            screenBlurTempTexture = device.makeTexture(descriptor: halfDesc)
-            screenBlurResultTexture = device.makeTexture(descriptor: halfDesc)
+        if screenBlurChain.first?.width != texture.width / 2 || screenBlurResultTexture?.width != smallW || screenBlurResultTexture?.height != smallH {
+            screenBlurChain = (1...levels).compactMap { level in
+                makeBlurTexture(width: max(1, texture.width >> level), height: max(1, texture.height >> level))
+            }
+            screenBlurTempTexture = makeBlurTexture(width: smallW, height: smallH)
+            screenBlurResultTexture = makeBlurTexture(width: smallW, height: smallH)
         }
 
-        guard let half = screenBlurHalfTexture,
+        guard screenBlurChain.count == levels,
+              let small = screenBlurChain.last,
               let temp = screenBlurTempTexture,
               let blurred = screenBlurResultTexture else { return nil }
 
-        let halfRadius = min(Int32(radius / 2.0), 80)
-        let sigma = Float(radius) / 3.0 / 2.0
-        var params = GPUBlurParams(radius: halfRadius, sigma: sigma)
-
         let tg = MTLSize(width: 16, height: 16, depth: 1)
-        let halfGrid = MTLSize(width: halfW, height: halfH, depth: 1)
 
-        if let enc = commandBuffer.makeComputeCommandEncoder() {
-            enc.setComputePipelineState(downsamplePipeline)
-            enc.setTexture(texture, index: 0)
-            enc.setTexture(half, index: 1)
-            enc.dispatchThreads(halfGrid, threadsPerThreadgroup: tg)
-            enc.endEncoding()
+        var source = texture
+        for target in screenBlurChain {
+            if let enc = commandBuffer.makeComputeCommandEncoder() {
+                enc.setComputePipelineState(downsamplePipeline)
+                enc.setTexture(source, index: 0)
+                enc.setTexture(target, index: 1)
+                enc.dispatchThreads(MTLSize(width: target.width, height: target.height, depth: 1), threadsPerThreadgroup: tg)
+                enc.endEncoding()
+            }
+            source = target
         }
+
+        let sigma = radius / 3.0 / scale
+        var params = GPUBlurParams(radius: min(Int32((sigma * 3).rounded(.up)), 80), sigma: sigma)
+        let smallGrid = MTLSize(width: smallW, height: smallH, depth: 1)
 
         if let enc = commandBuffer.makeComputeCommandEncoder() {
             enc.setComputePipelineState(blurHPipeline)
-            enc.setTexture(half, index: 0)
+            enc.setTexture(small, index: 0)
             enc.setTexture(temp, index: 1)
             enc.setBytes(&params, length: MemoryLayout<GPUBlurParams>.stride, index: 0)
-            enc.dispatchThreads(halfGrid, threadsPerThreadgroup: tg)
+            enc.dispatchThreads(smallGrid, threadsPerThreadgroup: tg)
             enc.endEncoding()
         }
 
@@ -570,11 +579,20 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
             enc.setTexture(temp, index: 0)
             enc.setTexture(blurred, index: 1)
             enc.setBytes(&params, length: MemoryLayout<GPUBlurParams>.stride, index: 0)
-            enc.dispatchThreads(halfGrid, threadsPerThreadgroup: tg)
+            enc.dispatchThreads(smallGrid, threadsPerThreadgroup: tg)
             enc.endEncoding()
         }
 
         return blurred
+    }
+
+    private func makeBlurTexture(width: Int, height: Int) -> MTLTexture? {
+        let desc = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .bgra8Unorm, width: width, height: height, mipmapped: false
+        )
+        desc.usage = [.shaderRead, .shaderWrite]
+        desc.storageMode = .private
+        return device.makeTexture(descriptor: desc)
     }
 
     // MARK: - Offscreen render target
@@ -660,6 +678,7 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
 
     func draw(in view: MTKView) {
+        let frameTime = CMClockGetTime(CMClockGetHostTimeClock())
         onBeforeDraw?()
 
         // Block until a slot frees up. Same pattern as Apple's Metal triple-buffering samples.
@@ -798,7 +817,7 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
         }
         commandBuffer.commit()
 
-        let onOutput = self.onOutput
+        let onOutput = (wantsFullResOutput?() ?? true) ? self.onOutput : nil
         if let onOutput, let recBuf = acquirePooledBuffer(from: recordingPool) {
             if let cb2 = encodeQueue.makeCommandBuffer() {
                 cb2.encodeWaitForEvent(hazardEvent, value: frameHazardValue)
@@ -814,7 +833,7 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
                 }
                 frameGroup.enter()
                 cb2.addCompletedHandler { [weak self] _ in
-                    onOutput(recBuf.pixelBuffer)
+                    onOutput(recBuf.pixelBuffer, frameTime)
                     self?.releasePooledBuffer(recBuf)
                     frameGroup.leave()
                 }
@@ -854,7 +873,7 @@ final class MetalRenderer: NSObject, MTKViewDelegate, @unchecked Sendable {
 
                 frameGroup.enter()
                 cb3.addCompletedHandler { [weak self] _ in
-                    onStreamingOutput(streamBuf.pixelBuffer)
+                    onStreamingOutput(streamBuf.pixelBuffer, frameTime)
                     self?.releasePooledBuffer(streamBuf)
                     frameGroup.leave()
                 }

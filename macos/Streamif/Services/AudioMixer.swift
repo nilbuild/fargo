@@ -60,6 +60,7 @@ final class AudioMixer {
     private var lastMicTime: CFAbsoluteTime = 0
     private var lastSystemTime: CFAbsoluteTime = 0
     private let drainTimeout: CFAbsoluteTime = 0.05
+    private let maxBacklogSeconds = 0.15
 
     private let mixQueue = DispatchQueue(label: "com.streamif.audiomixer", qos: .userInteractive)
 
@@ -165,6 +166,11 @@ final class AudioMixer {
             vDSP_vadd(mixed, 1, sys, 1, &mixed, 1, vDSP_Length(mixCount))
         }
 
+        // Mic and system audio run on separate clocks, and mixing takes the smaller of
+        // the two, so the faster source's surplus piles up and drifts out of sync.
+        trimBacklog(&micBuffer)
+        trimBacklog(&systemBuffer)
+
         lock.unlock()
 
         if noiseGateEnabled {
@@ -187,6 +193,14 @@ final class AudioMixer {
         if let sb = makeSampleBuffer(from: mixed, frameCount: frameCount) {
             onMixedAudio?(sb)
         }
+    }
+
+    private func trimBacklog(_ buffer: inout [Float]) {
+        let maxSamples = Int(sampleRate * maxBacklogSeconds) * channels
+        guard buffer.count > maxSamples else {
+            return
+        }
+        buffer.removeFirst(buffer.count - maxSamples)
     }
 
     // MARK: - Noise Gate

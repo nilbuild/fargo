@@ -342,12 +342,12 @@ final class RTMPConnection: @unchecked Sendable {
         ))
     }
 
-    func sendVideo(_ flvData: Data, timestamp: UInt32) {
+    func sendVideo(_ flvData: Data, timestamp: UInt32, completion: (() -> Void)? = nil) {
         sendMessage(RTMPChunk.Message(
             chunkStreamId: RTMPChunk.videoStreamId, timestamp: timestamp,
             messageTypeId: RTMPChunk.typeVideo, messageStreamId: messageStreamId,
             payload: flvData
-        ))
+        ), completion: completion)
     }
 
     func sendAudio(_ flvData: Data, timestamp: UInt32) {
@@ -360,7 +360,7 @@ final class RTMPConnection: @unchecked Sendable {
 
     // MARK: - Message Send/Receive
 
-    private func sendMessage(_ message: RTMPChunk.Message) {
+    private func sendMessage(_ message: RTMPChunk.Message, completion: (() -> Void)? = nil) {
         // Serialize all chunk encoding through the sendLock to prevent
         // concurrent modification of writeStates from multiple threads
         sendLock.lock()
@@ -368,7 +368,7 @@ final class RTMPConnection: @unchecked Sendable {
         let chunked = RTMPChunk.chunkMessage(message, chunkSize: chunkSize, state: &state)
         writeStates[message.chunkStreamId] = state
         sendLock.unlock()
-        send(chunked, completion: nil)
+        send(chunked, completion: completion)
     }
 
     private func send(_ data: Data, completion: (() -> Void)?) {

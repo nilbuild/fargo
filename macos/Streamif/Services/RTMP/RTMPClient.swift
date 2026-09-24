@@ -63,8 +63,18 @@ final class RTMPClient: @unchecked Sendable {
     private var liveStartTime: Date?
 
     private let sendQueue = DispatchQueue(label: "com.streamif.rtmpclient.send", qos: .userInitiated)
-    private var queuedBytes: Int = 0
-    private let maxQueuedBytes = 5_000_000
+    // Bytes handed to the socket that it hasn't sent yet. Counted until NWConnection
+    // reports them processed, so a slow uplink shows up here instead of as an
+    // ever-growing backlog that freezes the stream on the platform.
+    private let queueLock = NSLock()
+    private var _queuedBytes: Int = 0
+    private var queuedBytes: Int {
+        queueLock.lock()
+        defer { queueLock.unlock() }
+        return _queuedBytes
+    }
+    // About two seconds of video. Past this, new frames are dropped before encoding.
+    private var maxQueuedBytes: Int { max(config.videoBitrate / 4, 500_000) }
 
     private var currentBitrate: Int
     private var bitrateFloor: Int
@@ -73,6 +83,7 @@ final class RTMPClient: @unchecked Sendable {
     private let bitrateAdjustInterval: TimeInterval = 3.0
     private var consecutiveLowQueue: Int = 0
     private var consecutiveHighQueue: Int = 0
+    private var droppedFramesAtLastAdjust: Int = 0
 
     private var reconnectAttempt: Int = 0
     private let maxReconnectAttempts = 10
@@ -181,7 +192,7 @@ final class RTMPClient: @unchecked Sendable {
         audioEncoder = nil
         streamStartTime = .invalid
         hasSentSequenceHeaders = false
-        queuedBytes = 0
+        resetQueuedBytes()
         liveStartTime = nil
     }
 
@@ -237,11 +248,26 @@ final class RTMPClient: @unchecked Sendable {
         guard let flvData = FLVTag.avcNALU(sampleBuffer: sampleBuffer, isKeyframe: isKeyframe,
                                             compositionTimeMs: compositionTime) else { return }
 
+        let size = flvData.count
         sendQueue.async { [weak self] in
-            self?.queuedBytes += flvData.count
-            self?.connection.sendVideo(flvData, timestamp: timestamp)
-            self?.queuedBytes -= flvData.count
+            guard let self else { return }
+            self.addQueuedBytes(size)
+            self.connection.sendVideo(flvData, timestamp: timestamp) { [weak self] in
+                self?.addQueuedBytes(-size)
+            }
         }
+    }
+
+    private func addQueuedBytes(_ delta: Int) {
+        queueLock.lock()
+        _queuedBytes = max(0, _queuedBytes + delta)
+        queueLock.unlock()
+    }
+
+    private func resetQueuedBytes() {
+        queueLock.lock()
+        _queuedBytes = 0
+        queueLock.unlock()
     }
 
     private func handleEncodedAudio(_ aacData: Data, presentationTime: CMTime) {
@@ -303,8 +329,12 @@ final class RTMPClient: @unchecked Sendable {
         lastBitrateAdjust = now
 
         let queueRatio = Double(queuedBytes) / Double(maxQueuedBytes)
+        // The queue fills, drops frames, then drains, so a single sample often misses
+        // congestion. Drops since the last check are the reliable signal.
+        let droppedSinceLastAdjust = health.droppedFrames > droppedFramesAtLastAdjust
+        droppedFramesAtLastAdjust = health.droppedFrames
 
-        if queueRatio > 0.7 {
+        if queueRatio > 0.7 || droppedSinceLastAdjust {
             consecutiveHighQueue += 1
             consecutiveLowQueue = 0
         } else if queueRatio < 0.2 {
@@ -317,7 +347,7 @@ final class RTMPClient: @unchecked Sendable {
 
         var newBitrate = currentBitrate
 
-        if consecutiveHighQueue >= 2 {
+        if droppedSinceLastAdjust || consecutiveHighQueue >= 2 {
             newBitrate = max(bitrateFloor, currentBitrate * 3 / 4)
             consecutiveHighQueue = 0
         } else if consecutiveLowQueue >= 4 {
@@ -360,7 +390,7 @@ final class RTMPClient: @unchecked Sendable {
 
         streamStartTime = .invalid
         hasSentSequenceHeaders = false
-        queuedBytes = 0
+        resetQueuedBytes()
 
         let timer = DispatchSource.makeTimerSource(queue: sendQueue)
         timer.schedule(deadline: .now() + delay)

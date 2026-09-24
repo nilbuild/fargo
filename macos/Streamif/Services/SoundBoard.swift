@@ -25,10 +25,6 @@ final class SoundBoard {
     var playingId: UUID?
 
     private var audioPlayer: AVAudioPlayer?
-    var onAudioSample: ((CMSampleBuffer) -> Void)?
-
-    private var mixerEngine: AVAudioEngine?
-    private var mixerPlayer: AVAudioPlayerNode?
 
     init() {
         loadSounds()

@@ -15,6 +15,11 @@ final class LocalRecorder {
     // writer access is serialized.
     private let lock = NSLock()
 
+    // The audio input refuses buffers while the writer waits on video to interleave.
+    // Held here and appended once it's ready, rather than dropped.
+    private var pendingAudio: [CMSampleBuffer] = []
+    private let maxPendingAudio = 500
+
     func start() {
         lock.lock()
         defer { lock.unlock() }
@@ -31,6 +36,9 @@ final class LocalRecorder {
 
         do {
             let writer = try AVAssetWriter(outputURL: outputURL, fileType: .mp4)
+            // Without fragments the index is written only at the end, so a crash or
+            // force quit leaves a file nothing can open.
+            writer.movieFragmentInterval = CMTime(seconds: 10, preferredTimescale: 600)
 
             let videoSettings: [String: Any] = [
                 AVVideoCodecKey: AVVideoCodecType.hevc,
@@ -38,9 +46,12 @@ final class LocalRecorder {
                 AVVideoHeightKey: 2160,
                 AVVideoCompressionPropertiesKey: [
                     AVVideoProfileLevelKey: kVTProfileLevel_HEVC_Main_AutoLevel,
-                    // Do not add AVVideoAverageBitRateKey next to this. Setting both
-                    // makes the encoder silently ignore the bitrate target.
-                    AVVideoQualityKey: 1.0,
+                    // Do not add AVVideoQualityKey next to this. Setting both makes the
+                    // encoder silently ignore the bitrate target. Quality 1.0 alone ran
+                    // past 1 Gbps on screen content, backing up the writer (which then
+                    // refused audio) and filling the disk.
+                    AVVideoAverageBitRateKey: 60_000_000,
+                    AVVideoExpectedSourceFrameRateKey: 60,
                     AVVideoMaxKeyFrameIntervalDurationKey: 1.0,
                 ],
             ]
@@ -82,22 +93,33 @@ final class LocalRecorder {
         }
     }
 
-    func stop() {
+    func stop(completion: (() -> Void)? = nil) {
         lock.lock()
         defer { lock.unlock() }
-        guard isRecording else { return }
+        guard isRecording else {
+            completion?()
+            return
+        }
         isRecording = false
 
+        flushPendingAudio()
+        pendingAudio.removeAll()
         videoWriterInput?.markAsFinished()
         audioWriterInput?.markAsFinished()
         let writer = assetWriter
-        writer?.finishWriting {
-            print("[Streamif] Recording saved")
-        }
         assetWriter = nil
         videoWriterInput = nil
         audioWriterInput = nil
         recordingStartTime = nil
+
+        guard let writer else {
+            completion?()
+            return
+        }
+        writer.finishWriting {
+            print("[Streamif] Recording saved")
+            completion?()
+        }
     }
 
     func writeVideo(_ sampleBuffer: CMSampleBuffer) {
@@ -115,6 +137,7 @@ final class LocalRecorder {
         }
 
         input.append(sampleBuffer)
+        flushPendingAudio()
     }
 
     func writeAudio(_ sampleBuffer: CMSampleBuffer) {
@@ -122,10 +145,26 @@ final class LocalRecorder {
         defer { lock.unlock() }
         guard isRecording,
               assetWriter?.status == .writing,
-              let input = audioWriterInput,
-              input.isReadyForMoreMediaData,
               recordingStartTime != nil else { return }
 
-        input.append(sampleBuffer)
+        pendingAudio.append(sampleBuffer)
+        if pendingAudio.count > maxPendingAudio {
+            pendingAudio.removeFirst(pendingAudio.count - maxPendingAudio)
+        }
+        flushPendingAudio()
+    }
+
+    private func flushPendingAudio() {
+        guard assetWriter?.status == .writing, let input = audioWriterInput else {
+            return
+        }
+        var appended = 0
+        while appended < pendingAudio.count && input.isReadyForMoreMediaData {
+            if !input.append(pendingAudio[appended]) {
+                break
+            }
+            appended += 1
+        }
+        pendingAudio.removeFirst(appended)
     }
 }

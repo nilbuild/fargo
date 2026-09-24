@@ -14,6 +14,7 @@ struct StreamifApp: App {
                 .environment(pipeline)
                 .environment(destinations)
                 .task {
+                    appDelegate.pipeline = pipeline
                     destinations.load()
                     await pipeline.start()
                 }
@@ -35,9 +36,14 @@ struct StreamifApp: App {
 
             CommandMenu("Stream") {
                 Button("Go Live") {
-                    NotificationCenter.default.post(name: .goLive, object: nil)
+                    NotificationCenter.default.post(name: .goLive, object: false)
                 }
                 .keyboardShortcut("l", modifiers: [.command, .shift])
+                .disabled(pipeline.streamStatus.isLive)
+
+                Button("Go Live & Record") {
+                    NotificationCenter.default.post(name: .goLive, object: true)
+                }
                 .disabled(pipeline.streamStatus.isLive)
 
                 Button("End Stream") {
@@ -85,8 +91,25 @@ struct StreamifApp: App {
 // MARK: - App Delegate
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    weak var pipeline: MediaPipeline?
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         true
+    }
+
+    // The MP4 index is written when the recording finishes. Quitting without waiting for
+    // it leaves a file nothing can play.
+    @MainActor
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard let pipeline, pipeline.isRecording else {
+            return .terminateNow
+        }
+        pipeline.stopRecording {
+            DispatchQueue.main.async {
+                NSApp.reply(toApplicationShouldTerminate: true)
+            }
+        }
+        return .terminateLater
     }
 }
 

@@ -19,7 +19,6 @@ final class MediaPlayer: @unchecked Sendable {
 
     var onFrame: ((CVPixelBuffer) -> Void)?
     var onStateChanged: ((State) -> Void)?
-    var onAudio: ((CMSampleBuffer) -> Void)?
 
     var volume: Float = 1.0 {
         didSet { player?.volume = volume }
