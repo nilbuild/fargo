@@ -9,7 +9,7 @@ final class TwitchChatService {
     private var webSocket: URLSessionWebSocketTask?
     private var session: URLSession?
     private var sessionDelegate: WebSocketDelegate?
-    private var channel: String?
+    private(set) var channel: String?
     private let maxBufferSize = 100
 
     // MARK: - Public API

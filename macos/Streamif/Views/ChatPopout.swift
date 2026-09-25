@@ -110,6 +110,7 @@ struct ChatPopoutView: View {
                     .font(.system(size: 10, weight: .medium))
                     .foregroundStyle(.white.opacity(0.6))
                 Spacer()
+                ViewerCountToggle()
                 Toggle("", isOn: $popout.showInScreenShare)
                     .toggleStyle(.switch)
                     .controlSize(.mini)
@@ -119,6 +120,9 @@ struct ChatPopoutView: View {
             .padding(.horizontal, 12).padding(.vertical, 8)
             .background(Color(white: 0.04))
             .overlay(alignment: .bottom) { Rectangle().fill(.white.opacity(0.06)).frame(height: 1) }
+
+            ViewerCountBar()
+                .padding(.horizontal, 12).padding(.top, 10)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
@@ -150,5 +154,85 @@ struct ChatPopoutView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(white: 0.05))
+    }
+}
+
+// MARK: - Viewer Count
+
+/// Total live viewers across connected chat sources, with a per-platform breakdown.
+struct ViewerCountBar: View {
+    @Environment(MediaPipeline.self) private var pipeline
+
+    var body: some View {
+        let viewers = pipeline.viewerCountService
+        let isYouTubeConnected = pipeline.youtubeChatService.isPolling
+        let isTwitchConnected = pipeline.twitchChatService.isConnected
+
+        if !viewers.isVisible || (!isYouTubeConnected && !isTwitchConnected) {
+            EmptyView()
+        } else {
+            HStack(spacing: 8) {
+                Image(systemName: "person.2.fill")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.green.opacity(0.8))
+                Text(Self.format(viewers.total))
+                    .font(.system(size: 12, weight: .semibold).monospacedDigit())
+                    .foregroundStyle(.white.opacity(0.9))
+                Text("watching")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.white.opacity(0.4))
+
+                Spacer(minLength: 4)
+
+                if isYouTubeConnected {
+                    platformCount(icon: "play.rectangle.fill", color: .red, count: viewers.youtube)
+                        .help("YouTube viewers")
+                }
+                if isTwitchConnected {
+                    platformCount(icon: "gamecontroller.fill", color: .purple, count: viewers.twitch)
+                        .help("Twitch viewers")
+                }
+            }
+            .padding(.horizontal, 10).padding(.vertical, 7)
+            .background(.white.opacity(0.04))
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+        }
+    }
+
+    private func platformCount(icon: String, color: Color, count: Int?) -> some View {
+        HStack(spacing: 3) {
+            Image(systemName: icon)
+                .font(.system(size: 8))
+                .foregroundStyle(color.opacity(0.7))
+            Text(Self.format(count))
+                .font(.system(size: 10, weight: .medium).monospacedDigit())
+                .foregroundStyle(.white.opacity(0.6))
+        }
+    }
+
+    private static func format(_ count: Int?) -> String {
+        guard let count else {
+            return "–"
+        }
+        return count.formatted()
+    }
+}
+
+/// Shows or hides the viewer count at the top of the chat.
+struct ViewerCountToggle: View {
+    @Environment(MediaPipeline.self) private var pipeline
+
+    var body: some View {
+        let viewers = pipeline.viewerCountService
+
+        Button { viewers.isVisible.toggle() } label: {
+            Image(systemName: viewers.isVisible ? "person.2.fill" : "person.2.slash")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(viewers.isVisible ? .green.opacity(0.8) : .white.opacity(0.4))
+                .frame(width: 24, height: 24)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(viewers.isVisible ? "Hide viewer count" : "Show viewer count")
     }
 }

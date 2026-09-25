@@ -65,6 +65,13 @@ struct StreamifApp: App {
 
                 Divider()
 
+                Button("Notes & Checklist") {
+                    NotesPopout.shared.toggle(pipeline: pipeline)
+                }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+
+                Divider()
+
                 Button("Toggle Mute") {
                     pipeline.toggleMute()
                 }

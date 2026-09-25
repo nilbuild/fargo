@@ -1136,6 +1136,7 @@ struct ChatTab: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
                     TabSectionHeader(title: "LIVE CHAT") {
+                        ViewerCountToggle()
                         Button { ChatPopout.shared.toggle(pipeline: pipeline) } label: {
                             Image(systemName: ChatPopout.shared.isOpen
                                   ? "rectangle.on.rectangle.slash" : "rectangle.portrait.on.rectangle.portrait")
@@ -1147,6 +1148,8 @@ struct ChatTab: View {
                         .buttonStyle(.plain)
                         .help(ChatPopout.shared.isOpen ? "Close chat pop-out" : "Pop out chat")
                     }
+
+                    ViewerCountBar()
 
                     ChatSourceCard(
                         icon: "play.rectangle.fill",

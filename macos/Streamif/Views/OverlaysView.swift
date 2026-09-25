@@ -62,6 +62,13 @@ struct OverlaysPanel: View {
                             Label("Chat", systemImage: "bubble.left.and.bubble.right.fill")
                         }
                         .disabled(pipeline.overlays.contains { $0.type == .chat })
+
+                        Button {
+                            pipeline.showChecklistOnStream(true)
+                        } label: {
+                            Label("Checklist", systemImage: "checklist")
+                        }
+                        .disabled(pipeline.overlays.contains { $0.type == .checklist })
                     } label: {
                         Image(systemName: "plus")
                             .font(.system(size: 11, weight: .medium))
@@ -240,6 +247,8 @@ struct OverlayRow: View {
                 ChatOverlayControls(overlay: overlay)
             case .captions:
                 CaptionsOverlayControls(overlay: overlay)
+            case .checklist:
+                ChecklistOverlayControls(overlay: overlay)
             }
 
             if showStyleOptions {
@@ -250,6 +259,8 @@ struct OverlayRow: View {
                     ChatStyleOptions(overlay: overlay)
                 case .captions:
                     CaptionsStyleOptions(overlay: overlay)
+                case .checklist:
+                    CaptionsStyleOptions(overlay: overlay, showsAlignment: false)
                 case .image, .media:
                     EmptyView()
                 }
@@ -281,6 +292,7 @@ struct OverlayRow: View {
             return URL(fileURLWithPath: overlay.mediaPath).deletingPathExtension().lastPathComponent
         case .chat: return "Chat"
         case .captions: return "Live Captions"
+        case .checklist: return "Checklist"
         }
     }
 
@@ -938,9 +950,45 @@ struct CaptionsOverlayControls: View {
     }
 }
 
+// MARK: - Checklist Controls
+
+struct ChecklistOverlayControls: View {
+    @Environment(MediaPipeline.self) private var pipeline
+    let overlay: StreamOverlay
+
+    var body: some View {
+        let notes = pipeline.studioNotes
+
+        VStack(alignment: .leading, spacing: 6) {
+            TextField("Title", text: Binding(
+                get: { overlay.text },
+                set: { var o = overlay; o.text = $0; pipeline.updateOverlay(o) }
+            ))
+            .textFieldStyle(.roundedBorder)
+            .controlSize(.small)
+
+            HStack(spacing: 6) {
+                Text(notes.items.isEmpty ? "No items" : "\(notes.doneCount) of \(notes.items.count) done")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.white.opacity(0.4))
+                Spacer()
+                Button {
+                    NotesPopout.shared.open(pipeline: pipeline, tab: .checklist)
+                } label: {
+                    Text("Edit Items")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(.blue)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
 struct CaptionsStyleOptions: View {
     @Environment(MediaPipeline.self) private var pipeline
     let overlay: StreamOverlay
+    var showsAlignment = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -959,19 +1007,21 @@ struct CaptionsStyleOptions: View {
             .pickerStyle(.segmented)
             .controlSize(.mini)
 
-            HStack(spacing: 4) {
-                Text("Align").font(.system(size: 9)).foregroundStyle(.white.opacity(0.3))
-                Picker("", selection: Binding(
-                    get: { overlay.textAlignment },
-                    set: { var o = overlay; o.textAlignment = $0; pipeline.updateOverlay(o) }
-                )) {
-                    Image(systemName: "text.alignleft").tag(OverlayTextAlignment.left)
-                    Image(systemName: "text.aligncenter").tag(OverlayTextAlignment.center)
-                    Image(systemName: "text.alignright").tag(OverlayTextAlignment.right)
+            if showsAlignment {
+                HStack(spacing: 4) {
+                    Text("Align").font(.system(size: 9)).foregroundStyle(.white.opacity(0.3))
+                    Picker("", selection: Binding(
+                        get: { overlay.textAlignment },
+                        set: { var o = overlay; o.textAlignment = $0; pipeline.updateOverlay(o) }
+                    )) {
+                        Image(systemName: "text.alignleft").tag(OverlayTextAlignment.left)
+                        Image(systemName: "text.aligncenter").tag(OverlayTextAlignment.center)
+                        Image(systemName: "text.alignright").tag(OverlayTextAlignment.right)
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.segmented)
+                    .controlSize(.mini)
                 }
-                .labelsHidden()
-                .pickerStyle(.segmented)
-                .controlSize(.mini)
             }
 
             HStack(spacing: 4) {

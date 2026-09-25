@@ -184,6 +184,14 @@ struct StreamOverlay: Identifiable, Codable {
             self.textAlignment = .center
             self.horizontalPadding = 24
             self.backgroundColor = OverlayColor(red: 0, green: 0, blue: 0, alpha: 0.7)
+        case .checklist:
+            self.text = "Working on"
+            self.x = 0.03
+            self.y = 0.05
+            self.width = 0.26
+            self.height = 0.4
+            self.fontSize = 22
+            self.backgroundColor = OverlayColor(red: 0, green: 0, blue: 0, alpha: 0.6)
         default:
             self.x = 0.05
             self.y = 0.85
@@ -787,6 +795,7 @@ enum OverlayType: String, Codable, CaseIterable, Identifiable {
     case media = "Media"
     case chat = "Chat"
     case captions = "Live Captions"
+    case checklist = "Checklist"
 
     var id: String { rawValue }
 
@@ -797,12 +806,13 @@ enum OverlayType: String, Codable, CaseIterable, Identifiable {
         case .media: return "film"
         case .chat: return "bubble.left.and.bubble.right.fill"
         case .captions: return "captions.bubble"
+        case .checklist: return "checklist"
         }
     }
 
     var usesExplicitSize: Bool {
         switch self {
-        case .chat, .captions:
+        case .chat, .captions, .checklist:
             return true
         case .text, .image, .media:
             return false

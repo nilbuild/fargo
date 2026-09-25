@@ -82,6 +82,12 @@ final class MetalCompositor: @unchecked Sendable {
     private var _chatMessages: [YouTubeChatMessage] = []
     private let chatLock = NSLock()
 
+    private var _checklistItems: [ChecklistItem] = []
+    var checklistItems: [ChecklistItem] {
+        get { chatLock.withLock { _checklistItems } }
+        set { chatLock.withLock { _checklistItems = newValue } }
+    }
+
     private var _renderedOverlayRects: [UUID: CGRect] = [:]
     private let rectLock = NSLock()
 
@@ -638,6 +644,14 @@ final class MetalCompositor: @unchecked Sendable {
             if overlay.type == .captions {
                 hasher.combine(captionText)
             }
+            if overlay.type == .checklist {
+                for item in checklistItems {
+                    hasher.combine(item.id)
+                    hasher.combine(item.text)
+                    hasher.combine(item.isDone)
+                }
+                hasher.combine(overlay.fontSize)
+            }
             let contentHash = hasher.finalize()
             let cached = cachedOverlayTextures[overlay.id]
 
@@ -807,6 +821,8 @@ final class MetalCompositor: @unchecked Sendable {
             return renderChatOverlayTexture(overlay: overlay, renderer: renderer)
         case .captions:
             return renderCaptionsTexture(overlay: overlay, renderer: renderer)
+        case .checklist:
+            return renderChecklistTexture(overlay: overlay, renderer: renderer)
         }
     }
 
@@ -1372,6 +1388,105 @@ final class MetalCompositor: @unchecked Sendable {
 
         guard let cgImage = ctx.makeImage() else { return nil }
         return renderer.makeTexture(from: cgImage)
+    }
+
+    // MARK: - Checklist Overlay Rendering
+
+    private func renderChecklistTexture(overlay: StreamOverlay, renderer: MetalRenderer) -> MTLTexture? {
+        guard let (ctx, w, h) = makeOverlayContext(overlay: overlay) else { return nil }
+        let items = checklistItems
+
+        let cornerRadius: CGFloat = 10
+        ctx.addPath(CGPath(roundedRect: CGRect(x: 0, y: 0, width: w, height: h),
+                           cornerWidth: cornerRadius, cornerHeight: cornerRadius, transform: nil))
+        ctx.setFillColor(overlay.backgroundColor.cgColor)
+        ctx.fillPath()
+
+        NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: false)
+        defer { NSGraphicsContext.current = nil }
+
+        let padding = max(12, overlay.fontSize * 0.7)
+        let maxWidth = CGFloat(w) - padding * 2
+        let textColor = overlay.textColor.nsColor
+        let itemFont = overlay.fontFamily.isEmpty
+            ? NSFont.systemFont(ofSize: overlay.fontSize, weight: overlay.fontWeight.nsWeight)
+            : overlay.nsFont
+        let titleFont = NSFont.systemFont(ofSize: overlay.fontSize * 0.62, weight: .bold)
+
+        // The context is not flipped, so rows are laid out downward from the top edge.
+        var top = CGFloat(h) - padding
+
+        let titleAttrs: [NSAttributedString.Key: Any] = [
+            .font: titleFont,
+            .foregroundColor: textColor.withAlphaComponent(0.6),
+            .kern: 1.2,
+        ]
+        let title = NSAttributedString(string: overlay.text.uppercased(), attributes: titleAttrs)
+        let progress = NSAttributedString(
+            string: items.isEmpty ? "" : "\(items.filter(\.isDone).count)/\(items.count)",
+            attributes: titleAttrs
+        )
+        let titleHeight = ceil(max(title.size().height, progress.size().height))
+        if !overlay.text.isEmpty || !items.isEmpty {
+            title.draw(in: CGRect(x: padding, y: top - titleHeight, width: maxWidth, height: titleHeight))
+            let progressWidth = ceil(progress.size().width)
+            progress.draw(at: NSPoint(x: CGFloat(w) - padding - progressWidth, y: top - titleHeight))
+            top -= titleHeight + overlay.fontSize * 0.5
+        }
+
+        if items.isEmpty {
+            let placeholder = NSAttributedString(string: "No items yet", attributes: [
+                .font: itemFont,
+                .foregroundColor: textColor.withAlphaComponent(0.3),
+            ])
+            let size = placeholder.size()
+            placeholder.draw(at: NSPoint(x: padding, y: top - size.height))
+        }
+
+        let iconSize = overlay.fontSize * 0.95
+        let iconGap = overlay.fontSize * 0.5
+        let textWidth = maxWidth - iconSize - iconGap
+        let rowSpacing = overlay.fontSize * 0.45
+
+        for item in items {
+            var attrs: [NSAttributedString.Key: Any] = [
+                .font: itemFont,
+                .foregroundColor: item.isDone ? textColor.withAlphaComponent(0.45) : textColor,
+            ]
+            if item.isDone {
+                attrs[.strikethroughStyle] = NSUnderlineStyle.single.rawValue
+                attrs[.strikethroughColor] = textColor.withAlphaComponent(0.45)
+            }
+            let text = NSAttributedString(string: item.text, attributes: attrs)
+            let bounds = text.boundingRect(
+                with: CGSize(width: textWidth, height: .greatestFiniteMagnitude),
+                options: [.usesLineFragmentOrigin, .usesFontLeading]
+            )
+            let rowHeight = ceil(max(bounds.height, iconSize))
+            if top - rowHeight < padding * 0.5 {
+                break
+            }
+
+            let lineHeight = ceil(itemFont.ascender - itemFont.descender + itemFont.leading)
+            let iconY = top - (lineHeight + iconSize) / 2
+            drawChecklistIcon(isDone: item.isDone, in: CGRect(x: padding, y: iconY, width: iconSize, height: iconSize), color: textColor)
+
+            text.draw(in: CGRect(x: padding + iconSize + iconGap, y: top - rowHeight, width: textWidth, height: rowHeight))
+            top -= rowHeight + rowSpacing
+        }
+
+        guard let cgImage = ctx.makeImage() else { return nil }
+        return renderer.makeTexture(from: cgImage)
+    }
+
+    private func drawChecklistIcon(isDone: Bool, in rect: CGRect, color: NSColor) {
+        let name = isDone ? "checkmark.circle.fill" : "circle"
+        let tint = isDone ? NSColor(red: 0.3, green: 0.85, blue: 0.4, alpha: 1) : color.withAlphaComponent(0.5)
+        let config = NSImage.SymbolConfiguration(pointSize: rect.height, weight: .semibold)
+            .applying(NSImage.SymbolConfiguration(paletteColors: [tint]))
+        guard let image = NSImage(systemSymbolName: name, accessibilityDescription: nil)?
+            .withSymbolConfiguration(config) else { return }
+        image.draw(in: rect)
     }
 
     // MARK: - Featured Chat Message

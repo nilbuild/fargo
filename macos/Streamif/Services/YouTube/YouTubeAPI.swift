@@ -256,6 +256,31 @@ final class YouTubeAPI {
         return try JSONDecoder().decode(YouTubeChatListResponse.self, from: data)
     }
 
+    // MARK: - Viewers
+
+    /// Returns nil when the broadcast is not live, or the channel hides its viewer count.
+    func fetchConcurrentViewers(videoId: String) async throws -> Int? {
+        let token = try await requireToken()
+
+        var components = URLComponents(string: "\(baseUrl)/videos")!
+        components.queryItems = [
+            URLQueryItem(name: "part", value: "liveStreamingDetails"),
+            URLQueryItem(name: "id", value: videoId),
+        ]
+
+        var request = URLRequest(url: components.url!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let (data, httpResponse) = try await URLSession.shared.data(for: request)
+        try Self.throwIfError(data: data, response: httpResponse)
+        let response = try JSONDecoder().decode(YouTubeListResponse<YouTubeVideoItem>.self, from: data)
+
+        guard let viewers = response.items?.first?.liveStreamingDetails?.concurrentViewers else {
+            return nil
+        }
+        return Int(viewers)
+    }
+
     // MARK: - Active Broadcast Helper
 
     func getActiveBroadcast() async throws -> YouTubeBroadcast? {

@@ -32,22 +32,27 @@
 		A10000010000000000000048 /* StreamOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000048; };
 		A10000010000000000000049 /* StreamManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000049; };
 		A10000010000000000000050 /* StreamStatsOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000050; };
+		A1C0FFEE0000000000000006 /* StreamSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C0FFEE0000000000000006; };
 		A1C0FFEE0000000000000001 /* ChatPopout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C0FFEE0000000000000001; };
+		A1C0FFEE0000000000000005 /* NotesPopout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C0FFEE0000000000000005; };
 		A10000010000000000000051 /* LocalRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000051; };
 		A10000010000000000000052 /* AudioMixer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000052; };
 		A10000010000000000000060 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000060; };
 				A2410F2199D2AD52F621ED29 /* GIFPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B1087E73170E958F1936B9 /* GIFPlayer.swift */; };
 		A10000010000000000000061 /* MediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000061; };
 		A10000010000000000000062 /* SoundBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000062; };
+		A1C0FFEE0000000000000004 /* StreamSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C0FFEE0000000000000004; };
 		A100000100000000000000C0 /* CaptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000100000000000000C0; };
 		A100000100000000000000C1 /* AudioBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A200000100000000000000C1; };
 		A10000010000000000000063 /* CanvasSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000063; };
 		A10000010000000000000080 /* YouTubeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000080; };
+		A1C0FFEE0000000000000003 /* StudioNotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C0FFEE0000000000000003; };
 		A10000010000000000000081 /* YouTubeAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000081; };
 		A10000010000000000000082 /* YouTubeAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000082; };
 		A10000010000000000000083 /* YouTubeChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000083; };
 		A10000010000000000000084 /* TwitchAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000084; };
 		A10000010000000000000085 /* TwitchChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000085; };
+		A1C0FFEE0000000000000002 /* ViewerCountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C0FFEE0000000000000002; };
 		A10000010000000000000010 /* FramelessWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000013; };
 		A10000010000000000000011 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000014; };
 		A10000010000000000000012 /* SceneConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000015; };
@@ -102,7 +107,9 @@
 		A20000010000000000000048 /* StreamOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamOutput.swift; sourceTree = "<group>"; };
 		A20000010000000000000049 /* StreamManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamManager.swift; sourceTree = "<group>"; };
 		A20000010000000000000050 /* StreamStatsOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamStatsOverlay.swift; sourceTree = "<group>"; };
+		A2C0FFEE0000000000000006 /* StreamSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamSummaryView.swift; sourceTree = "<group>"; };
 		A2C0FFEE0000000000000001 /* ChatPopout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatPopout.swift; sourceTree = "<group>"; };
+		A2C0FFEE0000000000000005 /* NotesPopout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesPopout.swift; sourceTree = "<group>"; };
 		A20000010000000000000051 /* LocalRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalRecorder.swift; sourceTree = "<group>"; };
 		A20000010000000000000052 /* AudioMixer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMixer.swift; sourceTree = "<group>"; };
 		A20000010000000000000060 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
@@ -111,15 +118,18 @@
 		A20000010000000000000070 /* Sounds */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Sounds; sourceTree = "<group>"; };
 		A20000010000000000000071 /* Wallpapers */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Wallpapers; sourceTree = "<group>"; };
 		A20000010000000000000062 /* SoundBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundBoard.swift; sourceTree = "<group>"; };
+		A2C0FFEE0000000000000004 /* StreamSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamSession.swift; sourceTree = "<group>"; };
 		A200000100000000000000C0 /* CaptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionService.swift; sourceTree = "<group>"; };
 		A200000100000000000000C1 /* AudioBus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBus.swift; sourceTree = "<group>"; };
 		A20000010000000000000063 /* CanvasSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasSource.swift; sourceTree = "<group>"; };
 		A20000010000000000000080 /* YouTubeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeModels.swift; sourceTree = "<group>"; };
+		A2C0FFEE0000000000000003 /* StudioNotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioNotes.swift; sourceTree = "<group>"; };
 		A20000010000000000000081 /* YouTubeAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeAuth.swift; sourceTree = "<group>"; };
 		A20000010000000000000082 /* YouTubeAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeAPI.swift; sourceTree = "<group>"; };
 		A20000010000000000000083 /* YouTubeChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeChatService.swift; sourceTree = "<group>"; };
 		A20000010000000000000084 /* TwitchAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitchAuth.swift; sourceTree = "<group>"; };
 		A20000010000000000000085 /* TwitchChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwitchChatService.swift; sourceTree = "<group>"; };
+		A2C0FFEE0000000000000002 /* ViewerCountService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerCountService.swift; sourceTree = "<group>"; };
 		A20000010000000000000091 /* Updater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Updater.swift; sourceTree = "<group>"; };
 		A20000010000000000000100 /* StreamifTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StreamifTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000010000000000000101 /* StreamConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamConfigTests.swift; sourceTree = "<group>"; };
@@ -209,6 +219,7 @@
 				A20000010000000000000060 /* AppSettings.swift */,
 				A20000010000000000000063 /* CanvasSource.swift */,
 				A20000010000000000000080 /* YouTubeModels.swift */,
+				A2C0FFEE0000000000000003 /* StudioNotes.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -224,7 +235,9 @@
 				A20000010000000000000022 /* OverlaysView.swift */,
 				A20000010000000000000033 /* MetalPreviewView.swift */,
 				A20000010000000000000050 /* StreamStatsOverlay.swift */,
+				A2C0FFEE0000000000000006 /* StreamSummaryView.swift */,
 				A2C0FFEE0000000000000001 /* ChatPopout.swift */,
+				A2C0FFEE0000000000000005 /* NotesPopout.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -243,6 +256,7 @@
 				A2B1087E73170E958F1936B9 /* GIFPlayer.swift */,
 				A20000010000000000000061 /* MediaPlayer.swift */,
 				A20000010000000000000062 /* SoundBoard.swift */,
+				A2C0FFEE0000000000000004 /* StreamSession.swift */,
 				A200000100000000000000C0 /* CaptionService.swift */,
 				A200000100000000000000C1 /* AudioBus.swift */,
 				A20000010000000000000030 /* MetalRenderer.swift */,
@@ -264,6 +278,7 @@
 				A20000010000000000000083 /* YouTubeChatService.swift */,
 				A20000010000000000000084 /* TwitchAuth.swift */,
 				A20000010000000000000085 /* TwitchChatService.swift */,
+				A2C0FFEE0000000000000002 /* ViewerCountService.swift */,
 			);
 			path = YouTube;
 			sourceTree = "<group>";
@@ -428,22 +443,27 @@
 				A10000010000000000000048 /* StreamOutput.swift in Sources */,
 				A10000010000000000000049 /* StreamManager.swift in Sources */,
 				A10000010000000000000050 /* StreamStatsOverlay.swift in Sources */,
+				A1C0FFEE0000000000000006 /* StreamSummaryView.swift in Sources */,
 				A1C0FFEE0000000000000001 /* ChatPopout.swift in Sources */,
+				A1C0FFEE0000000000000005 /* NotesPopout.swift in Sources */,
 				A10000010000000000000051 /* LocalRecorder.swift in Sources */,
 				A10000010000000000000052 /* AudioMixer.swift in Sources */,
 				A10000010000000000000060 /* AppSettings.swift in Sources */,
 				A2410F2199D2AD52F621ED29 /* GIFPlayer.swift in Sources */,
 				A10000010000000000000061 /* MediaPlayer.swift in Sources */,
 				A10000010000000000000062 /* SoundBoard.swift in Sources */,
+				A1C0FFEE0000000000000004 /* StreamSession.swift in Sources */,
 				A100000100000000000000C0 /* CaptionService.swift in Sources */,
 				A100000100000000000000C1 /* AudioBus.swift in Sources */,
 				A10000010000000000000063 /* CanvasSource.swift in Sources */,
 				A10000010000000000000080 /* YouTubeModels.swift in Sources */,
+				A1C0FFEE0000000000000003 /* StudioNotes.swift in Sources */,
 				A10000010000000000000081 /* YouTubeAuth.swift in Sources */,
 				A10000010000000000000082 /* YouTubeAPI.swift in Sources */,
 				A10000010000000000000083 /* YouTubeChatService.swift in Sources */,
 				A10000010000000000000084 /* TwitchAuth.swift in Sources */,
 				A10000010000000000000085 /* TwitchChatService.swift in Sources */,
+				A1C0FFEE0000000000000002 /* ViewerCountService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

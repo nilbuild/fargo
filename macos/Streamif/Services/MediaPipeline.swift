@@ -8,7 +8,13 @@ final class MediaPipeline {
     // MARK: - Observable State (MainActor)
 
     var requestedSidebarTab: String?
-    var streamStatus: StreamStatus = .idle
+    var streamStatus: StreamStatus = .idle {
+        didSet {
+            if streamStatus.isLive && !sessionTracker.isActive {
+                sessionTracker.begin(existingMessages: allChatMessages)
+            }
+        }
+    }
     var audioLevel: Float = 0
     var isMuted = false
     var noiseSuppression = false {
@@ -181,6 +187,12 @@ final class MediaPipeline {
 
     let twitchAuth = TwitchAuth()
     let twitchChatService = TwitchChatService()
+    let viewerCountService = ViewerCountService()
+
+    let studioNotes = StudioNotes()
+    private let sessionTracker = StreamSessionTracker()
+    /// Set when a stream ends, and cleared once the summary is dismissed.
+    var streamSummary: StreamSummary?
 
     var allChatMessages: [YouTubeChatMessage] {
         let yt = youtubeChatService.messages
@@ -252,6 +264,11 @@ final class MediaPipeline {
         syncOverlays()
         youtubeAPI = YouTubeAPI(auth: youtubeAuth)
         setupChatSync()
+        setupViewerCountSync()
+        metalCompositor.checklistItems = studioNotes.items
+        studioNotes.onItemsChanged = { [weak self] items in
+            self?.metalCompositor.checklistItems = items
+        }
 
         savedMediaPresets = Persistence.loadMediaPresets()
         if savedMediaPresets.isEmpty {
@@ -883,6 +900,21 @@ final class MediaPipeline {
         }
     }
 
+    var isChecklistOnStream: Bool {
+        overlays.contains { $0.type == .checklist && $0.isVisible }
+    }
+
+    func showChecklistOnStream(_ show: Bool) {
+        guard var overlay = overlays.first(where: { $0.type == .checklist }) else {
+            if show {
+                addOverlay(StreamOverlay(type: .checklist))
+            }
+            return
+        }
+        overlay.isVisible = show
+        updateOverlay(overlay)
+    }
+
     func updateOverlay(_ overlay: StreamOverlay) {
         if let idx = overlays.firstIndex(where: { $0.id == overlay.id }) {
             overlays[idx] = overlay
@@ -909,8 +941,29 @@ final class MediaPipeline {
             while !Task.isCancelled {
                 if youtubeChatService.isPolling || twitchChatService.isConnected {
                     metalCompositor.chatMessages = allChatMessages
+                    sessionTracker.recordMessages(allChatMessages)
                 }
                 try? await Task.sleep(nanoseconds: 500_000_000)
+            }
+        }
+    }
+
+    private func setupViewerCountSync() {
+        Task {
+            while !Task.isCancelled {
+                let previousUpdate = viewerCountService.lastUpdated
+                await viewerCountService.tick(
+                    youtubeAPI: youtubeAPI,
+                    youtubeVideoId: youtubeChatService.isPolling ? youtubeBroadcast?.id : nil,
+                    twitchAuth: twitchAuth,
+                    twitchChannel: twitchChatService.isConnected ? twitchChatService.channel : nil,
+                    isLive: streamStatus.isLive
+                )
+                if let updated = viewerCountService.lastUpdated, updated != previousUpdate,
+                   let total = viewerCountService.total {
+                    sessionTracker.recordViewers(total, at: updated)
+                }
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
             }
         }
     }
@@ -1251,13 +1304,16 @@ final class MediaPipeline {
     }
 
     /// Our own windows, which display captures leave out so the app doesn't film itself.
-    /// The chat pop-out is left in when the user has chosen to show it on stream.
+    /// The chat and notes pop-outs are left in when the user has chosen to show them on stream.
     private func selfWindowsToExclude() async -> [SCWindow] {
         let myBundleId = Bundle.main.bundleIdentifier
-        let visibleChatWindow = ChatPopout.shared.showInScreenShare ? ChatPopout.shared.windowNumber : nil
+        let visibleWindows = Set([
+            ChatPopout.shared.showInScreenShare ? ChatPopout.shared.windowNumber : nil,
+            NotesPopout.shared.showInScreenShare ? NotesPopout.shared.windowNumber : nil,
+        ].compactMap { $0 })
         return (try? await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true))?.windows.filter {
             $0.owningApplication?.bundleIdentifier == myBundleId
-                && visibleChatWindow != Int($0.windowID)
+                && !visibleWindows.contains(Int($0.windowID))
         } ?? []
     }
 
@@ -1785,6 +1841,9 @@ final class MediaPipeline {
     }
 
     func stopStreaming() async {
+        if let summary = sessionTracker.finish(checklist: studioNotes.items) {
+            streamSummary = summary
+        }
         streamManager.removeAll()
         streamStatus = .idle
         stopRecording()

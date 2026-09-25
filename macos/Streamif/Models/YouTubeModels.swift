@@ -195,3 +195,12 @@ struct YouTubeChannelItem: Decodable {
         }
     }
 }
+
+struct YouTubeVideoItem: Decodable {
+    let id: String
+    let liveStreamingDetails: LiveStreamingDetails?
+
+    struct LiveStreamingDetails: Decodable {
+        let concurrentViewers: String?
+    }
+}

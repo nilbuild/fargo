@@ -84,6 +84,11 @@ struct ContentView: View {
                     }
                 }
 
+                ToolbarButton(icon: "note.text") {
+                    NotesPopout.shared.toggle(pipeline: pipeline)
+                }
+                .help("Notes and checklist")
+
                 ToolbarButton(icon: "sidebar.trailing") {
                     withAnimation(.easeInOut(duration: 0.2)) { showPanel.toggle() }
                 }
@@ -129,6 +134,12 @@ struct ContentView: View {
             goLive(record: note.object as? Bool ?? false)
         }
         .onReceive(NotificationCenter.default.publisher(for: .endStream)) { _ in endStream() }
+        .sheet(item: Binding(
+            get: { pipeline.streamSummary },
+            set: { pipeline.streamSummary = $0 }
+        )) { summary in
+            StreamSummaryView(summary: summary) { pipeline.streamSummary = nil }
+        }
     }
 
     func goLive(record: Bool) {
