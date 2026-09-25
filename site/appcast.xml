@@ -6,6 +6,26 @@
     <description>Most recent Streamif updates.</description>
     <language>en</language>
     <item>
+      <title>Version 0.1.9</title>
+      <pubDate>Fri, 25 Sep 2026 07:07:35 +0000</pubDate>
+      <sparkle:version>12</sparkle:version>
+      <sparkle:shortVersionString>0.1.9</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description><![CDATA[<h3>What&#x27;s changed</h3>
+<ul>
+<li>Bump version to 0.1.9 (e59d13f)</li>
+<li>Add viewer count, notes window with checklist overlay, and post-stream summary (d224477)</li>
+<li>Fix input jump on focus (32be44a)</li>
+<li>Add v0.1.8 to the appcast [skip actions] (1fa52f4)</li>
+</ul>
+<h3>Install</h3>
+<p>Download <code>Streamif-0.1.9-universal.dmg</code>, drag Streamif to Applications, and launch it.</p>
+<p>The build is a universal binary, signed with a Developer ID certificate and notarized by Apple.</p>
+<p>Requires macOS 14.0 or later. Existing installs update themselves through Sparkle.</p>
+<p><strong>Full changelog</strong>: https://github.com/nilbuild/streamif/compare/v0.1.8...v0.1.9</p>]]></description>
+      <enclosure url="https://github.com/nilbuild/streamif/releases/download/v0.1.9/Streamif-0.1.9-universal.zip" length="20564585" type="application/octet-stream" sparkle:edSignature="rwFGHW4s0VoBS+K6wAiE5JMpiUDs8Ntw8100RQbmI19xVXjL9wAb3FjNj87yhcr/fr6QdbsYA1zVfBgUNVO4CQ=="/>
+    </item>
+    <item>
       <title>Version 0.1.8</title>
       <pubDate>Thu, 24 Sep 2026 10:50:45 +0000</pubDate>
       <sparkle:version>11</sparkle:version>
